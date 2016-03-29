@@ -101,7 +101,7 @@
     <Content Include="openal32.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Libraries\C#\OpenGL4CSharp\opengl4csharp\OpenGL\OpenGL.csproj">
+    <ProjectReference Include="..\..\..\Libraries\C#\opengl4csharp\OpenGL\OpenGL.csproj">
       <Project>{4a3d3106-afec-4e04-9630-7a1a2d0c16db}</Project>
       <Name>OpenGL</Name>
     </ProjectReference>
