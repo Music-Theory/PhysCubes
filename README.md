@@ -21,16 +21,8 @@ Escape: Delete Spawned Cubes
 
 DEPENDENCIES
 
-OpenGL4CSharp https://github.com/giawa/opengl4csharp
+My Fork Of OpenGL4CSharp https://github.com/Music-Theory/opengl4csharp
 
-There's a quaternion bug in OpenGL4CSharp that breaks normalization. To fix it:
-
-	Change this line in the method "public static Quaternion operator /(Quaternion q, float scalar):"
-
-	return new Quaternion(q.x * invScalar, q.y + invScalar, q.z * invScalar, q.w * invScalar);
-
-	To this:
-
-	return new Quaternion(q.x * invScalar, q.y * invScalar, q.z * invScalar, q.w * invScalar);
+I fixed a quaternion division bug that was present in the original, so use this until the pull request I sent to the original repository is merged.
 
 SFML.Net http://www.sfml-dev.org/download/sfml.net/
