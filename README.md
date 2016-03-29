@@ -21,8 +21,6 @@ Escape: Delete Spawned Cubes
 
 DEPENDENCIES
 
-My Fork Of OpenGL4CSharp https://github.com/Music-Theory/opengl4csharp
-
-I fixed a quaternion division bug that was present in the original, so use this until the pull request I sent to the original repository is merged.
+OpenGL4CSharp https://github.com/giawa/opengl4csharp
 
 SFML.Net http://www.sfml-dev.org/download/sfml.net/
