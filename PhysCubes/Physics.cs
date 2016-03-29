@@ -29,8 +29,10 @@ namespace PhysCubes {
 			boxes.Add(new PhysBox(pos, sca, vel));
 		}
 
-		public static void MakeBox(PhysState init) {
-			boxes.Add(new PhysBox(init));
+		public static PhysBox MakeBox(PhysState init) {
+			PhysBox box = new PhysBox(init);
+			boxes.Add(box);
+			return box;
 		}
 
 		public static PhysDeriv Evaluate(PhysState init, double t) {
@@ -67,7 +69,7 @@ namespace PhysCubes {
 			//der.torque.y = (float) ( 1.1f * Math.Sin(t * 0.5f + 0.4f) );
 			//der.torque.z = (float) ( 1.2f * Math.Sin(t * 0.7f + 0.9f) );
 			//der.torque -= 0.2f * state.AngularVel;
-			der.torque = state.position.Normalize() * GRAVITY.y * .01f;
+			//der.torque = state.position.Normalize() * GRAVITY.y * .01f;
 			//der.torque = Vector3.Forward;
 			//der.torque -= .2f * state.AngularVel;
 		}

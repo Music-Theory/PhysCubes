@@ -198,6 +198,13 @@ namespace PhysCubes {
 
 		#endregion
 
+		public void RefreshInit() { initState = currState; }
+
+		public void ApplyForce(Vector3 force, Vector3 pos) {
+			currState.LinMomentum += force;
+			currState.AngMomentum += force.Cross(pos - currState.position);
+		}
+
 		public void Refresh() {
 			interStackUpdated = false;
 			UpdateBoundingBox();
@@ -238,6 +245,44 @@ namespace PhysCubes {
 			physCube.Draw();
 		}
 
+		public void DrawPhysics(Camera cam) {
+			physLine.Program.Use();
+			MatrixStack lineStack = new MatrixStack();
+			PhysState s = currState;
+			Matrix4 trans = Matrix4.CreateTranslation(s.position);
+
+			physLine.Program["color"].SetValue(new Vector3(.5, .5, 1));
+			lineStack.Push(Matrix4.CreateScaling(new Vector3(4, 4, 4) * s.scale));
+			lineStack.Push(s.Rotation.Matrix4);
+			lineStack.Push(trans);
+			physLine.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
+			physLine.Draw();
+
+			physLine.Program["color"].SetValue(new Vector3(.5, 1, .5));
+			lineStack.Clear();
+			lineStack.Push(Matrix4.CreateScaling(new Vector3(4, 4, 4) * s.scale));
+			lineStack.Push((Quaternion.FromAngleAxis((float) Math.PI / 2f, Vector3.Right) * s.Rotation).Matrix4);
+			lineStack.Push(trans);
+			physLine.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
+			physLine.Draw();
+
+			physLine.Program["color"].SetValue(new Vector3(1, .5, .5));
+			lineStack.Clear();
+			lineStack.Push(Matrix4.CreateScaling(new Vector3(4, 4, 4) * s.scale));
+			lineStack.Push((Quaternion.FromAngleAxis((float)Math.PI / 2f, Vector3.Down) * s.Rotation).Matrix4);
+			lineStack.Push(trans);
+			physLine.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
+			physLine.Draw();
+
+			physLine.Program["color"].SetValue(new Vector3(1, .5, .75));
+			lineStack.Clear();
+			lineStack.Push(Matrix4.CreateScaling(new Vector3(4, 4, 4) * s.scale * s.AngMomentum.Length));
+			lineStack.Push((Quaternion.FromAngleAxis((float) Math.PI / 2f, s.AngMomentum.Normalize())).Matrix4);
+			lineStack.Push(Matrix4.CreateTranslation(s.position + new Vector3(0, 2, -2) * s.scale));
+			physLine.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
+			physLine.Draw();
+		}
+
 		#region Static
 
 		
@@ -250,16 +295,23 @@ namespace PhysCubes {
 			physShader.DisposeChildren = true;
 			physShader.Dispose();
 			physTex.Dispose();
+			physLine.DisposeChildren = true;
+			physLine.Dispose();
+			lineShader.DisposeChildren = true;
+			lineShader.Dispose();
 		}
 
 		static PhysBox() {
 			physTex = new Texture("BoxNumber.png");
 			WriteGLError("Load PhysTex");
 			physShader = new ShaderProgram(LoadShaderString("texVert"), LoadShaderString("texFrag"));
+			lineShader = new ShaderProgram(LoadShaderString("simpleVert"), LoadShaderString("simpleFrag"));
 			physCube = new VAO(physShader, physVerts, physUV, physIndices);
+			physLine = new VAO(lineShader, physLineVec, physLineInd);
+			physLine.DrawMode = BeginMode.Lines;
 		}
 
-		public static ShaderProgram physShader;
+		public static ShaderProgram physShader, lineShader;
 
 		public static Texture physTex;
 
@@ -308,6 +360,16 @@ namespace PhysCubes {
 				// Right
 				20, 21, 22, 22, 23, 20
 			});
+
+		static VBO<Vector3> physLineVec = new VBO<Vector3>(new [] {
+			new Vector3(0, 0, 0),
+			new Vector3(0, 0, 1),  
+		});
+		static VBO<int> physLineInd = new VBO<int>(new [] {
+			0, 1
+		}); 
+
+		public static VAO physLine;
 
 		public static VAO physCube;
 

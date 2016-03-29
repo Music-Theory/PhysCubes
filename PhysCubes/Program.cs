@@ -15,14 +15,14 @@ namespace PhysCubes {
 	static class Program {
 		#region Variables
 
-		static Vector2u res = new Vector2u(1600, 900);
+		static Vector2 res = new Vector2(1600, 900);
 		
-		public static Matrix4 projMat = Matrix4.CreatePerspectiveFieldOfView(.45f, (float) res.X / res.Y, .1f, 1000f);
+		public static Matrix4 projMat = Matrix4.CreatePerspectiveFieldOfView(.45f, res.x / res.y, .1f, 1000f);
 
 		static readonly MatrixStack planeStack = new MatrixStack();
 
-		static readonly Vector3 CAM_POS = new Vector3(0, 5, 50);
-		static readonly Vector3 BOX_POS = new Vector3(0, 10, 0);
+		static readonly Vector3 CAM_POS = new Vector3(0, 0, 50);
+		static readonly Vector3 BOX_POS = new Vector3(0, 5, 0);
 
 		static Camera cam = new Camera(CAM_POS);
 
@@ -43,7 +43,7 @@ namespace PhysCubes {
 				MinorVersion = 4
 			};
 
-			window = new RenderWindow(new VideoMode(res.X, res.Y), "OpenGL", Styles.Default, contextSettings);
+			window = new RenderWindow(new VideoMode((uint) res.x, (uint) res.y), "OpenGL", Styles.Default, contextSettings);
 			window.SetFramerateLimit(60);
 
 			window.SetActive();
@@ -62,17 +62,18 @@ namespace PhysCubes {
 
 			#region Load Model & Shader
 
+
+			Physics.boxes.Add(new PhysBox(new PhysState {
+				live = false,
+				scale = new Vector3(10, .5, 10),
+				Rotation = new Quaternion(0, 0, 0, 1)
+			}));
 			Physics.boxes.Add(new PhysBox(new PhysState {
 				position = BOX_POS,
 				Rotation = Quaternion.Identity,
 				scale = new Vector3(1, 1, 1),
 				Mass = 1,
 				live = true
-			}));
-			Physics.boxes.Add(new PhysBox(new PhysState {
-				live = false,
-				scale = new Vector3(10, .5, 10),
-				Rotation = new Quaternion(0, 0, 0, 1)
 			}));
 
 			#region Tex Plane
@@ -124,7 +125,7 @@ namespace PhysCubes {
 			Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 			Gl.DepthMask(true);
 
-			Gl.Viewport(0, 0, (int) res.X, (int) res.Y);
+			Gl.Viewport(0, 0, (int) res.x, (int) res.y);
 
 			#endregion
 
@@ -141,14 +142,18 @@ namespace PhysCubes {
 
 				Gl.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
 
-				foreach (PhysBox box in Physics.boxes) {
+				for (int i = 0; i < Physics.boxes.Count; i++) {
+					PhysBox box = Physics.boxes[i];
 					box.Draw(cam, currTex);
+					if (i > 0) { box.DrawPhysics(cam); }
 				}
 
 				texPlane.Program.Use();
 				texPlane.Program["transform_mat"].SetValue(planeStack.Result * cam.StackResult);
 				Gl.BindTexture(indexTex);
 				texPlane.Draw();
+
+				//RenderCrosshair();
 
 				window.Display();
 			}
@@ -192,6 +197,29 @@ namespace PhysCubes {
 			planeStack.Push(Matrix4.CreateTranslation(new Vector3(0, 0, 0)));
 		}
 
+		static void RenderCrosshair() {
+			PhysBox.physLine.Program.Use();
+
+			MatrixStack lineStack = new MatrixStack();
+
+			PhysBox.physLine.Program["color"].SetValue(new Vector3(.5,1,.5));
+			Quaternion rotation = Quaternion.FromAngleAxis((float) ( Math.PI / 2f ), Vector3.Right);
+			lineStack.Push(Matrix4.CreateScaling(new Vector3(.25, .25, .25)));
+			lineStack.Push(rotation.Matrix4);
+			lineStack.Push(Matrix4.CreateTranslation(new Vector3(0, 0, 0)));
+			PhysBox.physLine.Program["transform_mat"].SetValue(lineStack.Result);
+			PhysBox.physLine.Draw();
+
+			PhysBox.physLine.Program["color"].SetValue(new Vector3(.5, .5, 1));
+			rotation = Quaternion.FromAngleAxis((float) ( Math.PI / 2f ), Vector3.Down);
+			lineStack.Clear();
+			lineStack.Push(Matrix4.CreateScaling(new Vector3(.25, .25, .25)));
+			lineStack.Push(rotation.Matrix4);
+			lineStack.Push(Matrix4.CreateTranslation(new Vector3(0, 0, 0)));
+			PhysBox.physLine.Program["transform_mat"].SetValue(lineStack.Result);
+			PhysBox.physLine.Draw();
+		}
+
 		public static void Reset() {
 			cam.Position = CAM_POS;
 			cam.Rotation = Camera.INIT_CAM_ROT;
@@ -205,50 +233,109 @@ namespace PhysCubes {
 
 		static void OnKeyPressed(object sender, KeyEventArgs e) { if (!pressedKeys.Contains(e.Code)) { pressedKeys.Add(e.Code); } }
 
-		static void OnKeyReleased(object sender, KeyEventArgs e) { pressedKeys.Remove(e.Code); }
+		static void OnKeyReleased(object sender, KeyEventArgs e) {
+			pressedKeys.Remove(e.Code);
+			switch (e.Code) {
+				case Keyboard.Key.P:
+					pauseReleased = true;
+					break;
+			}
+		}
 
 		static bool mousePressed;
 
 		static void OnMousePressed(object sender, MouseButtonEventArgs e) {
-			mousePressed = true;
+			switch (e.Button) {
+				case Mouse.Button.Left:
+					mousePressed = true;
+					break;
+				case Mouse.Button.Right:
+					PushBox();
+					break;
+				case Mouse.Button.Middle:
+					break;
+				case Mouse.Button.XButton1:
+					break;
+				case Mouse.Button.XButton2:
+					break;
+				case Mouse.Button.ButtonCount:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
 		}
 
 		static void OnMouseReleased(object sender, MouseButtonEventArgs mouseButtonEventArgs) { mousePressed = false; }
 
-		static void SpawnBox() {
+		static void PushBox() {
+			PhysBox box = Physics.boxes[1];
 
+			Vector3 dir = ( box.currState.position - cam.Position ).Normalize();
+			Vector3 point = box.currState.position + -dir * box.currState.scale;
+
+			box.ApplyForce(dir, point);
+		}
+
+		static void SpinBox(int sign) {
+			PhysBox box = Physics.boxes[1];
+
+			//Vector3 dir = cam.forward;
+			//Vector3 point = 
+		}
+
+		static void SpawnBox() {
 			Vector2i mPos = Mouse.GetPosition(window);
 
-			Vector2 centerDist = new Vector2(
-				(res.X / 2f) - mPos.X,
-				(res.Y / 2f) - mPos.Y);
+			Vector2 centerDist = new Vector2(res.x - mPos.X, res.y - mPos.Y) / res;
 
 			// Res / 2
 
-			Vector3 dir = cam.forward + new Vector3(
-				-centerDist.x / (res.X / 2f), 
-				centerDist.y / (res.Y / 2f),
-				0);
-
 			//dir = dir.Normalize() * 2;
 
-			Vector3 pos = cam.Position + cam.forward * 5;
+			Vector3 pos = cam.Position + cam.forward * 5 + (-cam.right * centerDist.x + cam.right / 2f) + (cam.up * centerDist.y - cam.up / 2f);
+			Vector3 dir = pos - cam.Position;
 
-			Quaternion rot = Quaternion.Identity;
+			Quaternion rotation = Quaternion.FromAngleAxis((float) ( Math.PI / 2f ), cam.forward);
 
-			Physics.MakeBox(new PhysState() {
-				LinMomentum = dir,
+			PhysBox box = Physics.MakeBox(new PhysState(1) {
+				Rotation = rotation,
 				live = true,
-				Mass = 1,
 				position = pos,
-				Rotation = rot,
 				scale = new Vector3(.5, .5, .5)
 			});
+
+			Vector3 forcePoint = box.currState.position;
+
+			box.ApplyForce(dir, forcePoint);
+			if (paused) { box.currState.live = false; }
+			box.RefreshInit();
 		}
 
-		static void SwapTex() {
-			if (currTex == PhysBox.physTex) { currTex = donkeyTex; }
-			else { currTex = PhysBox.physTex; }	
+		static void SwapTex() { if (currTex == PhysBox.physTex) { currTex = donkeyTex; } else { currTex = PhysBox.physTex; } }
+
+		static bool pauseReleased = true;
+		static bool paused = false;
+
+		static void Pause() {
+			if (pauseReleased && !paused) {
+				for (int i = 1; i < Physics.boxes.Count; i++) {
+					PhysBox b = Physics.boxes[i];
+					b.currState.live = false;
+				}
+				paused = true;
+				pauseReleased = false;
+			} else if (pauseReleased) {
+				Unpause();
+				pauseReleased = false;
+			}
+		}
+
+		static void Unpause() {
+			for (int i = 1; i < Physics.boxes.Count; i++) {
+				PhysBox b = Physics.boxes[i];
+				b.currState.live = true;
+			}
+			paused = false;
 		}
 
 		static int mouseFrames = 0;
@@ -263,9 +350,7 @@ namespace PhysCubes {
 					case Keyboard.Key.Unknown:
 						break;
 					case Keyboard.Key.Escape:
-						for (int i = Physics.boxes.Count - 1; i > 1; i--) {
-							Physics.boxes.RemoveAt(i);
-						}
+						for (int i = Physics.boxes.Count - 1; i > 1; i--) { Physics.boxes.RemoveAt(i); }
 						break;
 					case Keyboard.Key.A:
 						cam.Move(-1, 0, 0);
@@ -275,6 +360,9 @@ namespace PhysCubes {
 						break;
 					case Keyboard.Key.E:
 						cam.Move(0, 1, 0);
+						break;
+					case Keyboard.Key.P:
+						Pause();
 						break;
 					case Keyboard.Key.R:
 						Reset();
