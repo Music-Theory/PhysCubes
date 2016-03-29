@@ -1,0 +1,34 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysCubes", "PhysCubes\PhysCubes.csproj", "{4EBD2085-D02B-459B-83B0-4A2D76C26D66}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Walker", "..\..\Libraries\C#\Walker\Walker.csproj", "{048E6EA8-A027-4F02-A0C4-43B09CF4CA2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGL", "..\..\Libraries\C#\OpenGL4CSharp\opengl4csharp\OpenGL\OpenGL.csproj", "{4A3D3106-AFEC-4E04-9630-7A1A2D0C16DB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4EBD2085-D02B-459B-83B0-4A2D76C26D66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EBD2085-D02B-459B-83B0-4A2D76C26D66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EBD2085-D02B-459B-83B0-4A2D76C26D66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EBD2085-D02B-459B-83B0-4A2D76C26D66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{048E6EA8-A027-4F02-A0C4-43B09CF4CA2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{048E6EA8-A027-4F02-A0C4-43B09CF4CA2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{048E6EA8-A027-4F02-A0C4-43B09CF4CA2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{048E6EA8-A027-4F02-A0C4-43B09CF4CA2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A3D3106-AFEC-4E04-9630-7A1A2D0C16DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A3D3106-AFEC-4E04-9630-7A1A2D0C16DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A3D3106-AFEC-4E04-9630-7A1A2D0C16DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A3D3106-AFEC-4E04-9630-7A1A2D0C16DB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
