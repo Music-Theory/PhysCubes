@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenGL;
 using SFML.System;
 
-namespace PhysCubes {
+namespace ReturnToGL.Physics {
 
 	public struct PhysDeriv {
 
@@ -107,7 +105,10 @@ namespace PhysCubes {
 		public static List<PhysBox> boxes = new List<PhysBox>();
 
 		public static void ResetBoxes() {
-			foreach (PhysBox box in boxes) { box.currState = box.initState; }
+			foreach (PhysBox box in boxes) {
+				box.currState = box.initState;
+				box.Refresh();
+			}
 		}
 
 		static double currTime = 0;

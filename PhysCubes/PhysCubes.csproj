@@ -58,16 +58,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
-    <Compile Include="PhysBox.cs" />
-    <Compile Include="Physics.cs" />
+    <Compile Include="Physics\ISpringAttachment.cs" />
+    <Compile Include="Physics\PhysBox.cs" />
+    <Compile Include="Physics\Physics.cs" />
+    <Compile Include="Physics\Spring.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rendering\OBJLoading.cs" />
+    <Compile Include="Rendering\RenderText.cs" />
     <Compile Include="Utility\MatrixStack.cs" />
-    <Compile Include="Utility\Utility.cs" />
+    <Compile Include="Utility\PhysMath.cs" />
+    <Compile Include="Utility\GLUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Shaders\stringFrag.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Shaders\simpleFrag.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Shaders\stringVert.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Shaders\texFrag.glsl">
@@ -79,6 +90,7 @@
     <None Include="Shaders\texVert.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="suzanne.obj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Checker.png">
@@ -91,13 +103,16 @@
     <Content Include="DonkeyCube.bmp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="DwarfTiles.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="BoxNumber.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Inconsolata16.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="libsndfile-1.dll" />
+    <Content Include="InconsolataLicense.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="openal32.dll" />
   </ItemGroup>
   <ItemGroup>
