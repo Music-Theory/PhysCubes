@@ -1,12 +1,14 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysCubes", "PhysCubes\PhysCubes.csproj", "{4EBD2085-D02B-459B-83B0-4A2D76C26D66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Walker", "..\..\Libraries\C#\Walker\Walker.csproj", "{048E6EA8-A027-4F02-A0C4-43B09CF4CA2E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Walker", "Walker\Walker\Walker.csproj", "{048E6EA8-A027-4F02-A0C4-43B09CF4CA2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGL", "..\..\Libraries\C#\opengl4csharp\OpenGL\OpenGL.csproj", "{4A3D3106-AFEC-4E04-9630-7A1A2D0C16DB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGL.Net_netcore2.0", "OpenGL.Net\OpenGL.Net\OpenGL.Net_netcore2.0.csproj", "{0BEB7877-8D14-472C-9308-BC9DED27E8A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDL2-CS.Core", "SDL2-CS\SDL2-CS.Core.csproj", "{F651E6CB-9075-400D-B5B5-63C1572A4DB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,10 +24,14 @@ Global
 		{048E6EA8-A027-4F02-A0C4-43B09CF4CA2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{048E6EA8-A027-4F02-A0C4-43B09CF4CA2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{048E6EA8-A027-4F02-A0C4-43B09CF4CA2E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A3D3106-AFEC-4E04-9630-7A1A2D0C16DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A3D3106-AFEC-4E04-9630-7A1A2D0C16DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A3D3106-AFEC-4E04-9630-7A1A2D0C16DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A3D3106-AFEC-4E04-9630-7A1A2D0C16DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BEB7877-8D14-472C-9308-BC9DED27E8A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BEB7877-8D14-472C-9308-BC9DED27E8A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BEB7877-8D14-472C-9308-BC9DED27E8A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BEB7877-8D14-472C-9308-BC9DED27E8A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F651E6CB-9075-400D-B5B5-63C1572A4DB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F651E6CB-9075-400D-B5B5-63C1572A4DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F651E6CB-9075-400D-B5B5-63C1572A4DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F651E6CB-9075-400D-B5B5-63C1572A4DB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

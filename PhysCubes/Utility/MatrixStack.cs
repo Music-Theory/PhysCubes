@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenGL;
 
 namespace PhysCubes.Utility {
+	using Walker.Data.Geometry.Speed.Rotation;
+
 	public class MatrixStack {
 
-		List<Matrix4> matrices = new List<Matrix4>();
+		List<Matrix4F> matrices = new List<Matrix4F>();
 
-		Matrix4 result = Matrix4.Identity;
+		Matrix4F result = Matrix4F.Identity;
 		bool updated = true;
 
-		public Matrix4 Result {
+		public Matrix4F Result {
 			get {
 				if (!updated) { UpdateResult(); }
 				return result;
@@ -22,14 +20,14 @@ namespace PhysCubes.Utility {
 
 		public int Count => matrices.Count;
 
-		public void Push(Matrix4 mat) {
+		public void Push(Matrix4F mat) {
 			matrices.Add(mat);
 			updated = false;
 		}
 
-		public Matrix4 Pop() {
-			if (matrices.Count < 1) { return Matrix4.Identity; }
-			Matrix4 mat = matrices.Last();
+		public Matrix4F Pop() {
+			if (matrices.Count < 1) { return Matrix4F.Identity; }
+			Matrix4F mat = matrices.Last();
 			matrices.RemoveAt(matrices.Count - 1);
 			updated = false;
 			return mat;
@@ -40,14 +38,14 @@ namespace PhysCubes.Utility {
 			updated = false;
 		}
 
-		public Matrix4 Peek() { return matrices.Count < 1 ? Matrix4.Identity : matrices.Last(); }
+		public Matrix4F Peek() { return matrices.Count < 1 ? Matrix4F.Identity : matrices.Last(); }
 
 		void UpdateResult() {
-			result = Matrix4.Identity;
-			foreach (Matrix4 mat in matrices) { result *= mat; }
+			result = Matrix4F.Identity;
+			foreach (Matrix4F mat in matrices) { result *= mat; }
 			updated = true;
 		}
-		
+
 
 	}
 }

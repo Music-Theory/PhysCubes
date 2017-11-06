@@ -1,29 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using OpenGL;
-using SFML.System;
 
 namespace ReturnToGL.Physics {
+	using System.Linq;
+	using Walker.Data.Geometry.Speed.Rotation;
+	using Walker.Data.Geometry.Speed.Space;
 
 	public struct PhysDeriv {
 
-		public Vector3 velocity;
-		public Vector3 force;
-		public Quaternion spin;
-		public Vector3 torque;
+		public Vector3F velocity;
+		public Vector3F force;
+		public Vector4F spin;
+		public Vector3F torque;
 
 	}
 
 	public static class Physics {
 
 		public const float MAX_VEL = 999999999999f;
-		public static readonly Vector3 GRAVITY = new Vector3(0, -.1635, 0);
+		public static readonly Vector3F GRAVITY = new Vector3F(0, -.1635f, 0);
 		public const float ELASTICITY = .5f;
 
 		public static readonly float MIN_LIVING_VEL = .0000000000001f;
 
-		public static void MakeBox(Vector3 pos, Vector3 sca, Vector3 vel) {
+		public static void MakeBox(Vector3F pos, Vector3F sca, Vector3F vel) {
 			boxes.Add(new PhysBox(pos, sca, vel));
 		}
 
@@ -68,7 +69,7 @@ namespace ReturnToGL.Physics {
 			//der.torque.z = (float) ( 1.2f * Math.Sin(t * 0.7f + 0.9f) );
 			//der.torque -= 0.2f * state.AngularVel;
 			//der.torque = state.position.Normalize() * GRAVITY.y * .01f;
-			//der.torque = Vector3.Forward;
+			//der.torque = Vector3F.Forward;
 			//der.torque -= .2f * state.AngularVel;
 		}
 
@@ -81,7 +82,7 @@ namespace ReturnToGL.Physics {
 				b = Evaluate(phys, t, dt*.5f, a),
 				c = Evaluate(phys, t, dt*.5f, b),
 				d = Evaluate(phys, t, dt, c);
-			
+
 
 			// dPos
 			phys.position += 1f / 6f * dt * ( a.velocity + 2 * ( b.velocity + c.velocity ) + d.velocity );
@@ -150,7 +151,7 @@ namespace ReturnToGL.Physics {
 			curr.position = curr.position * alpha + prev.position * ( 1 - alpha );
 			curr.LinMomentum = curr.LinMomentum * alpha + prev.LinMomentum * ( 1 - alpha );
 
-			//curr.Rotation = Quaternion.Slerp(prev.Rotation, curr.Rotation, alpha);
+			//curr.Rotation = Vector4F.Slerp(prev.Rotation, curr.Rotation, alpha);
 			//curr.AngMomentum = curr.AngMomentum * alpha + prev.AngMomentum * (1 - alpha);
 
 			return curr;

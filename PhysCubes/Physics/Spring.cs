@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenGL;
-using static PhysCubes.Utility.PhysMath;
+﻿namespace ReturnToGL.Physics {
+	using Walker.Data.Geometry.Speed.Space;
 
-namespace ReturnToGL.Physics {
 	public class Spring {
 
 		float length;
 
 		float kVal;
 
-		public static Vector3 ForceWithDamping(float k, Vector3 pos, float b, Vector3 relVel) {
+		public static Vector3F ForceWithDamping(float k, Vector3F pos, float b, Vector3F relVel) {
 			return -k * pos - b * relVel;
 		}
 

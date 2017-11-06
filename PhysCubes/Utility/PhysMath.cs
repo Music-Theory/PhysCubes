@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenGL;
 
 namespace PhysCubes.Utility {
+	using Walker.Data.Geometry.Speed.Space;
+
 	public static class PhysMath {
 
-		public static Vector3 Abs(Vector3 vec) {
-			return new Vector3(Math.Abs(vec.x), Math.Abs(vec.y), Math.Abs(vec.z));
+		public static Vector3F Abs(this Vector3F vec) {
+			return new Vector3F(Math.Abs(vec.x), Math.Abs(vec.y), Math.Abs(vec.z));
 		}
 
 	}

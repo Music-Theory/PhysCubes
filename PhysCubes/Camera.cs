@@ -1,8 +1,9 @@
 ﻿using System;
-using OpenGL;
 using PhysCubes.Utility;
 
 namespace PhysCubes {
+	using Walker.Data.Geometry.Speed.Rotation;
+	using Walker.Data.Geometry.Speed.Space;
 
 	public class Camera {
 		#region Variables
@@ -10,27 +11,27 @@ namespace PhysCubes {
 		const float MOVE_SPEED = .5f;
 		const float ROT_SPEED = 0.025f;
 
-		public static readonly Vector3 INIT_CAM_ROT = new Vector3(0, Math.PI, 0);
+		public static readonly Vector3F INIT_CAM_ROT = new Vector3F(0, (float) Math.PI, 0);
 
-		public Vector3 forward;
+		public Vector3F forward;
 		MatrixStack matStack;
 
 		bool matStackUpdated = false;
 
-		Vector3 position;
-		public Vector3 right;
-		public Vector3 rotation = INIT_CAM_ROT;
-		public Vector3 up;
+		Vector3F position;
+		public Vector3F right;
+		public Vector3F rotation = INIT_CAM_ROT;
+		public Vector3F up;
 
 		#endregion
 
-		public Camera(Vector3 pos) {
+		public Camera(Vector3F pos) {
 			position = pos;
 			matStack = new MatrixStack();
 			UpdateDir();
 		}
 
-		public Vector3 Position {
+		public Vector3F Position {
 			get { return position; }
 			set {
 				position = value;
@@ -38,7 +39,7 @@ namespace PhysCubes {
 			}
 		}
 
-		public Vector3 Rotation {
+		public Vector3F Rotation {
 			get { return rotation; }
 			set {
 				rotation = value;
@@ -46,11 +47,11 @@ namespace PhysCubes {
 			}
 		}
 
-		public Matrix4 StackResult {
+		public Matrix4F StackResult {
 			get {
 				if (!matStackUpdated) {
 					matStack.Clear();
-					matStack.Push(Matrix4.LookAt(position, position + forward, up));
+					matStack.Push(Matrix4F.LookAt(position, position + forward, up));
 					matStack.Push(Program.projMat);
 					matStackUpdated = true;
 				}
@@ -64,15 +65,15 @@ namespace PhysCubes {
 		}
 
 		void UpdateDir() {
-			forward = new Vector3(
-				Math.Cos(rotation.x) * Math.Sin(rotation.y),
-				Math.Sin(rotation.x),
-				Math.Cos(rotation.x) * Math.Cos(rotation.y));
-			right = new Vector3(
-				Math.Sin(rotation.y - Math.PI / 2),
+			forward = new Vector3F(
+				(float) (Math.Cos(rotation.x) * Math.Sin(rotation.y)),
+				(float) Math.Sin(rotation.x),
+				(float) (Math.Cos(rotation.x) * Math.Cos(rotation.y)));
+			right = new Vector3F(
+				(float) Math.Sin(rotation.y - Math.PI / 2),
 				0,
-				Math.Cos(rotation.y - Math.PI / 2));
-			up = Vector3.Cross(right, forward);
+				(float) Math.Cos(rotation.y - Math.PI / 2));
+			up = right.Cross(forward);
 		}
 
 		public void Move(int x, int y, int z) {
@@ -91,7 +92,7 @@ namespace PhysCubes {
 			y += rotation.y;
 			z += rotation.z;
 
-			rotation = new Vector3(x, y, z);
+			rotation = new Vector3F(x, y, z);
 			UpdateDir();
 			matStackUpdated = false;
 		}

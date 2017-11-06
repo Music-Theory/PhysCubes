@@ -4,21 +4,24 @@ using PhysCubes;
 using PhysCubes.Utility;
 
 namespace ReturnToGL.Physics {
+	using Walker.Data.Geometry.Generic.Plane;
+	using Walker.Data.Geometry.Speed.Rotation;
+	using Walker.Data.Geometry.Speed.Space;
 
 	public struct PhysState {
 
 		public const float MIN_MASS = 0.0001f;
 
-		Quaternion rotation;
-		public Vector3 position;
-		public Vector3 scale;
+		Vector4F rotation;
+		public Vector3F position;
+		public Vector3F scale;
 
-		Vector3 linMomentum;
-		Vector3 angMomentum;
+		Vector3F linMomentum;
+		Vector3F angMomentum;
 
-		Vector3 linearVel;
-		Vector3 angularVel;
-		Quaternion spin;
+		Vector3F linearVel;
+		Vector3F angularVel;
+		Vector4F spin;
 
 		float mass;
 		float inertiaTensor;
@@ -27,16 +30,16 @@ namespace ReturnToGL.Physics {
 		bool updated;
 
 		public PhysState(float mass = 1) {
-			rotation = Quaternion.Identity;
-			position = Vector3.Zero;
-			scale = Vector3.UnitScale;
+			rotation = Vector4F.QIdentity;
+			position = Vector3F.Zero;
+			scale = Vector3F.UnitScale;
 
-			linMomentum = Vector3.Zero;
-			angMomentum = Vector3.Zero;
+			linMomentum = Vector3F.Zero;
+			angMomentum = Vector3F.Zero;
 
-			linearVel = Vector3.Zero;
-			angularVel = Vector3.Zero;
-			spin = Quaternion.Zero;
+			linearVel = Vector3F.Zero;
+			angularVel = Vector3F.Zero;
+			spin = Vector4F.Zero;
 
 			this.mass = 1;
 			inertiaTensor = mass * scale.x * scale.x * 1 / 6;
@@ -45,7 +48,7 @@ namespace ReturnToGL.Physics {
 			updated = false;
 		}
 
-		public Quaternion Rotation {
+		public Vector4F Rotation {
 			get {
 				Update();
 				return rotation;
@@ -56,16 +59,16 @@ namespace ReturnToGL.Physics {
 			}
 		}
 
-		public Vector3 LinMomentum {
-			get { return linMomentum; }
+		public Vector3F LinMomentum {
+			get => linMomentum;
 			set {
 				linMomentum = value;
 				updated = false;
 			}
 		}
 
-		public Vector3 AngMomentum {
-			get { return angMomentum; }
+		public Vector3F AngMomentum {
+			get => angMomentum;
 			set {
 				angMomentum = value;
 				updated = false;
@@ -73,28 +76,28 @@ namespace ReturnToGL.Physics {
 		}
 
 		public float Mass {
-			get { return mass; }
+			get => mass;
 			set {
 				mass = Math.Max(MIN_MASS, value); // because 0 mass would break things
 				updated = false;
 			}
 		}
 
-		public Vector3 LinearVel {
+		public Vector3F LinearVel {
 			get {
 				Update();
 				return linearVel;
 			}
 		}
 
-		public Vector3 AngularVel {
+		public Vector3F AngularVel {
 			get {
 				Update();
 				return angularVel;
 			}
 		}
 
-		public Quaternion Spin {
+		public Vector4F Spin {
 			get {
 				Update();
 				return spin;
@@ -117,7 +120,7 @@ namespace ReturnToGL.Physics {
 			inertiaTensor = mass * scale.x * scale.x * 1 / 6;
 			angularVel = angMomentum / inertiaTensor;
 			rotation /= rotation.Length;
-			spin = new Quaternion(new Vector4(angularVel, 0)) * .5f * rotation;
+			spin = new Vector4F(angularVel, 0) * .5f * rotation;
 			updated = true;
 		}
 
@@ -129,9 +132,7 @@ namespace ReturnToGL.Physics {
 		public PhysState prevState;
 		public PhysState currState;
 
-		public PhysState InterState {
-			get { return Physics.Interpolate(prevState, currState, Physics.currAlpha); }
-		}
+		public PhysState InterState => Physics.Interpolate(prevState, currState, Physics.currAlpha);
 
 		public AxisAlignedBoundingBox bBox;
 
@@ -140,14 +141,14 @@ namespace ReturnToGL.Physics {
 
 		public Texture texture = physTex;
 
-		public Matrix4 InterStackRes {
+		public Matrix4F InterStackRes {
 			get {
 				if (!interStackUpdated) {
 					PhysState s = InterState;
 					interStack.Clear();
-					interStack.Push(Matrix4.CreateScaling(s.scale));
-					interStack.Push(s.Rotation.Matrix4);
-					interStack.Push(Matrix4.CreateTranslation(s.position));
+					interStack.Push(Matrix4F.CreateScaling(s.scale));
+					interStack.Push(s.Rotation.QMatrix);
+					interStack.Push(Matrix4F.CreateTranslation(s.position));
 					interStackUpdated = true;
 				}
 				return interStack.Result;
@@ -156,7 +157,7 @@ namespace ReturnToGL.Physics {
 
 		#region Constructor
 
-		public PhysBox(Vector3 pos, Quaternion rot, Vector3 sca, Vector3 linMom, Vector3 angMom, bool live) {
+		public PhysBox(Vector3F pos, Vector4F rot, Vector3F sca, Vector3F linMom, Vector3F angMom, bool live) {
 			initState = new PhysState() {
 				position = pos,
 				Rotation = rot,
@@ -167,25 +168,25 @@ namespace ReturnToGL.Physics {
 			prevState = initState;
 			currState = initState;
 
-			bBox = new AxisAlignedBoundingBox(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
+			bBox = new AxisAlignedBoundingBox(new Vector3F(-1, -1, -1), new Vector3F(1, 1, 1));
 
 			bBox.Transform(InterStackRes);
 
 			UpdateBoundingBox();
 		}
 
-		public PhysBox(Vector3 pos) : this(pos, Quaternion.Identity, Vector3.UnitScale, Vector3.Zero, Vector3.Zero, true) { }
-		public PhysBox(Vector3 pos, Vector3 sca) : this(pos, Quaternion.Identity, sca, Vector3.Zero, Vector3.Zero, true) { }
-		public PhysBox(Vector3 pos, Vector3 sca, Vector3 vel) : this(pos, Quaternion.Identity, sca, vel, Vector3.Zero, true) { }
-		public PhysBox(Vector3 pos, bool live) : this(pos, Quaternion.Identity, Vector3.UnitScale, Vector3.Zero, Vector3.Zero, live) { }
-		public PhysBox(Vector3 pos, Vector3 sca, bool live) : this(pos, Quaternion.Identity, sca, Vector3.Zero, Vector3.Zero, live) { }
+		public PhysBox(Vector3F pos) : this(pos, Vector4F.Identity, Vector4F.UnitScale, Vector3F.Zero, Vector3F.Zero, true) { }
+		public PhysBox(Vector3F pos, Vector3F sca) : this(pos, Vector4F.Identity, sca, Vector3F.Zero, Vector3F.Zero, true) { }
+		public PhysBox(Vector3F pos, Vector3F sca, Vector3F vel) : this(pos, Vector4F.Identity, sca, vel, Vector3F.Zero, true) { }
+		public PhysBox(Vector3F pos, bool live) : this(pos, Vector4F.Identity, Vector3F.UnitScale, Vector3F.Zero, Vector3F.Zero, live) { }
+		public PhysBox(Vector3F pos, Vector3F sca, bool live) : this(pos, Vector4F.Identity, sca, Vector3F.Zero, Vector3F.Zero, live) { }
 
 		public PhysBox(PhysState init) {
 			initState = init;
 			prevState = init;
 			currState = init;
 
-			bBox = new AxisAlignedBoundingBox(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
+			bBox = new AxisAlignedBoundingBox(new Vector3F(-1, -1, -1), new Vector3F(1, 1, 1));
 			bBox.Transform(InterStackRes);
 			UpdateBoundingBox();
 		}
@@ -194,12 +195,12 @@ namespace ReturnToGL.Physics {
 
 		public void RefreshInit() { initState = currState; }
 
-		public void ApplyForce(Vector3 force, Vector3 pos) {
+		public void ApplyForce(Vector3F force, Vector3F pos) {
 			currState.LinMomentum += force;
 			currState.AngMomentum += force.Cross(pos - currState.position);
 		}
 
-		public Vector3 GetVelOfPoint(Vector3 point) {
+		public Vector3F GetVelOfPoint(Vector3F point) {
 			return currState.LinearVel + currState.AngularVel.Cross(point - currState.position);
 		}
 
@@ -224,36 +225,36 @@ namespace ReturnToGL.Physics {
 			GLUtility.lineVAO.Program.Use();
 			MatrixStack lineStack = new MatrixStack();
 			PhysState s = currState;
-			Matrix4 trans = Matrix4.CreateTranslation(s.position);
+			Matrix4F trans = Matrix4F.CreateTranslation(s.position);
 
-			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(.5, .5, 1));
-			lineStack.Push(Matrix4.CreateScaling(new Vector3(4, 4, 4) * s.scale));
-			lineStack.Push(s.Rotation.Matrix4);
+			GLUtility.lineVAO.Program["color"].SetValue(new Vector3F(.5f, .5f, 1));
+			lineStack.Push(Matrix4F.CreateScaling(new Vector3F(4, 4, 4) * s.scale));
+			lineStack.Push(s.Rotation.QMatrix);
 			lineStack.Push(trans);
 			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
 			GLUtility.lineVAO.Draw();
 
-			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(.5, 1, .5));
+			GLUtility.lineVAO.Program["color"].SetValue(new Vector3F(.5f, 1, .5f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4.CreateScaling(new Vector3(4, 4, 4) * s.scale));
-			lineStack.Push((Quaternion.FromAngleAxis((float) Math.PI / 2f, Vector3.Right) * s.Rotation).Matrix4);
+			lineStack.Push(Matrix4F.CreateScaling(new Vector3F(4, 4, 4) * s.scale));
+			lineStack.Push((new Vector4F((float) Math.PI / 2f, Vector3F.Right) * s.Rotation).QMatrix);
 			lineStack.Push(trans);
 			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
 			GLUtility.lineVAO.Draw();
 
-			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(1, .5, .5));
+			GLUtility.lineVAO.Program["color"].SetValue(new Vector3F(1, .5f, .5f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4.CreateScaling(new Vector3(4, 4, 4) * s.scale));
-			lineStack.Push((Quaternion.FromAngleAxis((float)Math.PI / 2f, Vector3.Down) * s.Rotation).Matrix4);
+			lineStack.Push(Matrix4F.CreateScaling(new Vector3F(4, 4, 4) * s.scale));
+			lineStack.Push((new Vector4F((float)Math.PI / 2f, Vector3F.Down) * s.Rotation).QMatrix);
 			lineStack.Push(trans);
 			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
 			GLUtility.lineVAO.Draw();
 
-			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(1, .5, .75));
+			GLUtility.lineVAO.Program["color"].SetValue(new Vector3F(1, .5f, .75f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4.CreateScaling(new Vector3(4, 4, 4) * s.scale * s.AngMomentum.Length));
+			lineStack.Push(Matrix4F.CreateScaling(new Vector3F(4, 4, 4) * s.scale * s.AngMomentum.Length));
 			lineStack.Push((Quaternion.FromAngleAxis((float) Math.PI / 2f, s.AngMomentum.Normalize())).Matrix4);
-			lineStack.Push(Matrix4.CreateTranslation(s.position + new Vector3(0, 2, -2) * s.scale));
+			lineStack.Push(Matrix4F.CreateTranslation(s.position + new Vector3F(0, 2, -2) * s.scale));
 			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
 			GLUtility.lineVAO.Draw();
 		}
@@ -272,45 +273,45 @@ namespace ReturnToGL.Physics {
 			physTex = new Texture("BoxNumber.png");
 			GLUtility.WriteGLError("Load PhysTex");
 			physShader = new ShaderProgram(GLUtility.LoadShaderString("texVert"), GLUtility.LoadShaderString("texFrag"));
-			
+
 			physCube = new VAO(physShader, physVerts, physUV, physIndices);
-			
+
 		}
 
 		public static ShaderProgram physShader;
 
 		public static Texture physTex;
 
-		static VBO<Vector3> physVerts = new VBO<Vector3>(new[] {
+		static VBO<Vector3F> physVerts = new VBO<Vector3F>(new[] {
 				// Back Face
-				new Vector3(1, -1, -1), new Vector3(-1, -1, -1), new Vector3(-1, 1, -1), new Vector3(1, 1, -1),
+				new Vector3F(1, -1, -1), new Vector3F(-1, -1, -1), new Vector3F(-1, 1, -1), new Vector3F(1, 1, -1),
 				// Front Face
-				new Vector3(-1, -1, 1), new Vector3(1, -1, 1), new Vector3(1, 1, 1), new Vector3(-1, 1, 1),
+				new Vector3F(-1, -1, 1), new Vector3F(1, -1, 1), new Vector3F(1, 1, 1), new Vector3F(-1, 1, 1),
 
 				// This is so that UVs work
 				// Bottom Face
-				new Vector3(-1, -1, -1), new Vector3(1, -1, -1), new Vector3(1, -1, 1), new Vector3(-1, -1, 1),
+				new Vector3F(-1, -1, -1), new Vector3F(1, -1, -1), new Vector3F(1, -1, 1), new Vector3F(-1, -1, 1),
 				// Top Face
-				new Vector3(-1, 1, 1), new Vector3(1, 1, 1), new Vector3(1, 1, -1), new Vector3(-1, 1, -1),
+				new Vector3F(-1, 1, 1), new Vector3F(1, 1, 1), new Vector3F(1, 1, -1), new Vector3F(-1, 1, -1),
 
 				// Left Face
-				new Vector3(-1, -1, -1), new Vector3(-1, -1, 1), new Vector3(-1, 1, 1), new Vector3(-1, 1, -1),
+				new Vector3F(-1, -1, -1), new Vector3F(-1, -1, 1), new Vector3F(-1, 1, 1), new Vector3F(-1, 1, -1),
 				// Right Face
-				new Vector3(1, -1, 1), new Vector3(1, -1, -1), new Vector3(1, 1, -1), new Vector3(1, 1, 1)
+				new Vector3F(1, -1, 1), new Vector3F(1, -1, -1), new Vector3F(1, 1, -1), new Vector3F(1, 1, 1)
 			});
-		static VBO<Vector2> physUV = new VBO<Vector2>(new[] {
+		static VBO<Vector2F> physUV = new VBO<Vector2F>(new[] {
 				// Back: 6
-				new Vector2(.25, .25), new Vector2(.5, .25), new Vector2(.5, .5), new Vector2(.25, .5),
+				new Vector2FF(.25, .25), new Vector2F(.5, .25), new Vector2F(.5, .5), new Vector2F(.25, .5),
 				// Front: 1
-				new Vector2(0, 0), new Vector2(.25, 0), new Vector2(.25, .25), new Vector2(0, .25),
+				new Vector2F(0, 0), new Vector2F(.25, 0), new Vector2F(.25, .25), new Vector2F(0, .25),
 				// Bottom: 2
-				new Vector2(.25, 0), new Vector2(.5, 0), new Vector2(.5, .25), new Vector2(.25, .25),
+				new Vector2F(.25, 0), new Vector2F(.5, 0), new Vector2F(.5, .25), new Vector2F(.25, .25),
 				// Top: 5
-				new Vector2(0, .25), new Vector2(.25, .25), new Vector2(.25, .5), new Vector2(0, .5),
+				new Vector2F(0, .25), new Vector2F(.25, .25), new Vector2F(.25, .5), new Vector2F(0, .5),
 				// Left: 4
-				new Vector2(.75, 0), new Vector2(1, 0), new Vector2(1, .25), new Vector2(.75, .25),
+				new Vector2F(.75, 0), new Vector2F(1, 0), new Vector2F(1, .25), new Vector2F(.75, .25),
 				// Right: 3
-				new Vector2(.5, 0), new Vector2(.75, 0), new Vector2(.75, .25), new Vector2(.5, .25),
+				new Vector2F(.5, 0), new Vector2F(.75, 0), new Vector2F(.75, .25), new Vector2F(.5, .25),
 			});
 		static VBO<int> physIndices = new VBO<int>(new[] {
 				// Back
