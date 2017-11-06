@@ -5,6 +5,7 @@ using PhysCubes.Utility;
 
 namespace ReturnToGL.Physics {
 	using Walker.Data.Geometry.Generic.Plane;
+	using Walker.Data.Geometry.Speed.Plane;
 	using Walker.Data.Geometry.Speed.Rotation;
 	using Walker.Data.Geometry.Speed.Space;
 
@@ -175,11 +176,11 @@ namespace ReturnToGL.Physics {
 			UpdateBoundingBox();
 		}
 
-		public PhysBox(Vector3F pos) : this(pos, Vector4F.Identity, Vector4F.UnitScale, Vector3F.Zero, Vector3F.Zero, true) { }
-		public PhysBox(Vector3F pos, Vector3F sca) : this(pos, Vector4F.Identity, sca, Vector3F.Zero, Vector3F.Zero, true) { }
-		public PhysBox(Vector3F pos, Vector3F sca, Vector3F vel) : this(pos, Vector4F.Identity, sca, vel, Vector3F.Zero, true) { }
-		public PhysBox(Vector3F pos, bool live) : this(pos, Vector4F.Identity, Vector3F.UnitScale, Vector3F.Zero, Vector3F.Zero, live) { }
-		public PhysBox(Vector3F pos, Vector3F sca, bool live) : this(pos, Vector4F.Identity, sca, Vector3F.Zero, Vector3F.Zero, live) { }
+		public PhysBox(Vector3F pos) : this(pos, Vector4F.QIdentity, Vector3F.UnitScale, Vector3F.Zero, Vector3F.Zero, true) { }
+		public PhysBox(Vector3F pos, Vector3F sca) : this(pos, Vector4F.QIdentity, sca, Vector3F.Zero, Vector3F.Zero, true) { }
+		public PhysBox(Vector3F pos, Vector3F sca, Vector3F vel) : this(pos, Vector4F.QIdentity, sca, vel, Vector3F.Zero, true) { }
+		public PhysBox(Vector3F pos, bool live) : this(pos, Vector4F.QIdentity, Vector3F.UnitScale, Vector3F.Zero, Vector3F.Zero, live) { }
+		public PhysBox(Vector3F pos, Vector3F sca, bool live) : this(pos, Vector4F.QIdentity, sca, Vector3F.Zero, Vector3F.Zero, live) { }
 
 		public PhysBox(PhysState init) {
 			initState = init;
@@ -253,7 +254,7 @@ namespace ReturnToGL.Physics {
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3F(1, .5f, .75f));
 			lineStack.Clear();
 			lineStack.Push(Matrix4F.CreateScaling(new Vector3F(4, 4, 4) * s.scale * s.AngMomentum.Length));
-			lineStack.Push((Quaternion.FromAngleAxis((float) Math.PI / 2f, s.AngMomentum.Normalize())).Matrix4);
+			lineStack.Push(new Vector4F((float) (Math.PI / 2f), s.AngMomentum.Normalize()).QMatrix);
 			lineStack.Push(Matrix4F.CreateTranslation(s.position + new Vector3F(0, 2, -2) * s.scale));
 			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
 			GLUtility.lineVAO.Draw();
@@ -283,50 +284,52 @@ namespace ReturnToGL.Physics {
 		public static Texture physTex;
 
 		static VBO<Vector3F> physVerts = new VBO<Vector3F>(new[] {
-				// Back Face
-				new Vector3F(1, -1, -1), new Vector3F(-1, -1, -1), new Vector3F(-1, 1, -1), new Vector3F(1, 1, -1),
-				// Front Face
-				new Vector3F(-1, -1, 1), new Vector3F(1, -1, 1), new Vector3F(1, 1, 1), new Vector3F(-1, 1, 1),
+			                                                         // Back Face
+			                                                         new Vector3F(1, -1, -1), new Vector3F(-1, -1, -1), new Vector3F(-1, 1, -1), new Vector3F(1, 1, -1),
+			                                                         // Front Face
+			                                                         new Vector3F(-1, -1, 1), new Vector3F(1, -1, 1), new Vector3F(1, 1, 1), new Vector3F(-1, 1, 1),
 
-				// This is so that UVs work
-				// Bottom Face
-				new Vector3F(-1, -1, -1), new Vector3F(1, -1, -1), new Vector3F(1, -1, 1), new Vector3F(-1, -1, 1),
-				// Top Face
-				new Vector3F(-1, 1, 1), new Vector3F(1, 1, 1), new Vector3F(1, 1, -1), new Vector3F(-1, 1, -1),
+			                                                         // This is so that UVs work
+			                                                         // Bottom Face
+			                                                         new Vector3F(-1, -1, -1), new Vector3F(1, -1, -1), new Vector3F(1, -1, 1), new Vector3F(-1, -1, 1),
+			                                                         // Top Face
+			                                                         new Vector3F(-1, 1, 1), new Vector3F(1, 1, 1), new Vector3F(1, 1, -1), new Vector3F(-1, 1, -1),
 
-				// Left Face
-				new Vector3F(-1, -1, -1), new Vector3F(-1, -1, 1), new Vector3F(-1, 1, 1), new Vector3F(-1, 1, -1),
-				// Right Face
-				new Vector3F(1, -1, 1), new Vector3F(1, -1, -1), new Vector3F(1, 1, -1), new Vector3F(1, 1, 1)
-			});
+			                                                         // Left Face
+			                                                         new Vector3F(-1, -1, -1), new Vector3F(-1, -1, 1), new Vector3F(-1, 1, 1), new Vector3F(-1, 1, -1),
+			                                                         // Right Face
+			                                                         new Vector3F(1, -1, 1), new Vector3F(1, -1, -1), new Vector3F(1, 1, -1), new Vector3F(1, 1, 1)
+		                                                         });
+
 		static VBO<Vector2F> physUV = new VBO<Vector2F>(new[] {
-				// Back: 6
-				new Vector2FF(.25, .25), new Vector2F(.5, .25), new Vector2F(.5, .5), new Vector2F(.25, .5),
-				// Front: 1
-				new Vector2F(0, 0), new Vector2F(.25, 0), new Vector2F(.25, .25), new Vector2F(0, .25),
-				// Bottom: 2
-				new Vector2F(.25, 0), new Vector2F(.5, 0), new Vector2F(.5, .25), new Vector2F(.25, .25),
-				// Top: 5
-				new Vector2F(0, .25), new Vector2F(.25, .25), new Vector2F(.25, .5), new Vector2F(0, .5),
-				// Left: 4
-				new Vector2F(.75, 0), new Vector2F(1, 0), new Vector2F(1, .25), new Vector2F(.75, .25),
-				// Right: 3
-				new Vector2F(.5, 0), new Vector2F(.75, 0), new Vector2F(.75, .25), new Vector2F(.5, .25),
-			});
+			                                                      // Back: 6
+			                                                      new Vector2F(.25f, .25f), new Vector2F(.5f, .25f), new Vector2F(.5f, .5f), new Vector2F(.25f, .5f),
+			                                                      // Front: 1
+			                                                      new Vector2F(0, 0), new Vector2F(.25f, 0), new Vector2F(.25f, .25f), new Vector2F(0, .25f),
+			                                                      // Bottom: 2
+			                                                      new Vector2F(.25f, 0), new Vector2F(.5f, 0), new Vector2F(.5f, .25f), new Vector2F(.25f, .25f),
+			                                                      // Top: 5
+			                                                      new Vector2F(0, .25f), new Vector2F(.25f, .25f), new Vector2F(.25f, .5f), new Vector2F(0, .5f),
+			                                                      // Left: 4
+			                                                      new Vector2F(.75f, 0), new Vector2F(1, 0), new Vector2F(1, .25f), new Vector2F(.75f, .25f),
+			                                                      // Right: 3
+			                                                      new Vector2F(.5f, 0), new Vector2F(.75f, 0), new Vector2F(.75f, .25f), new Vector2F(.5f, .25f)
+		                                                      });
+
 		static VBO<int> physIndices = new VBO<int>(new[] {
-				// Back
-				0, 1, 2, 2, 3, 0,
-				// Front
-				4, 5, 6, 6, 7, 4,
-				// Bottom
-				8, 9, 10, 10, 11, 8,
-				// Top
-				12, 13, 14, 14, 15, 12,
-				// Left
-				16, 17, 18, 18, 19, 16,
-				// Right
-				20, 21, 22, 22, 23, 20
-			});
+			                                                 // Back
+			                                                 0,   1,  2,  2,  3,  0,
+			                                                 // Front
+			                                                 4,   5,  6,  6,  7,  4,
+			                                                 // Bottom
+			                                                 8,   9, 10, 10, 11,  8,
+			                                                 // Top
+			                                                 12, 13, 14, 14, 15, 12,
+			                                                 // Left
+			                                                 16, 17, 18, 18, 19, 16,
+			                                                 // Right
+			                                                 20, 21, 22, 22, 23, 20
+		                                                 });
 
 		public static VAO physCube;
 

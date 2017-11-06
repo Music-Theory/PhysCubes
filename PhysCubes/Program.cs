@@ -12,6 +12,7 @@ using Texture = OpenGL.Texture;
 namespace PhysCubes {
 	using System.Numerics;
 	using Walker.Data.Geometry.Generic.Plane;
+	using Walker.Data.Geometry.Speed.Plane;
 	using Walker.Data.Geometry.Speed.Rotation;
 	using Walker.Data.Geometry.Speed.Space;
 	using Quaternion = OpenGL.Quaternion;
@@ -19,9 +20,9 @@ namespace PhysCubes {
 	static class Program {
 		#region Variables
 
-		public static Vector2F res = new Vector2F(1600, 900);
+		public static Vector2<int> res = new Vector2<int>(1600, 900);
 
-		public static Matrix4F projMat = Matrix4F.CreatePerspectiveFieldOfView(.45f, res.x / res.y, .1f, 1000f);
+		public static Matrix4F projMat = Matrix4F.CreatePerspectiveFieldOfView(.45f, res.X / res.Y, .1f, 1000f);
 
 		static readonly MatrixStack planeStack = new MatrixStack();
 

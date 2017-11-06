@@ -5,6 +5,7 @@ using PhysCubes.Utility;
 
 namespace ReturnToGL.Rendering {
 	using Walker.Data.Geometry.Generic.Plane;
+	using Walker.Data.Geometry.Speed.Plane;
 	using Walker.Data.Geometry.Speed.Rotation;
 	using Walker.Data.Geometry.Speed.Space;
 
@@ -17,12 +18,12 @@ namespace ReturnToGL.Rendering {
 
 		public static Vector2F GetStringSize(string str, float scale) {
 			Vector2F charSize = GetCharSize(scale);
-			return new Vector2F(charSize.x * str.Length, charSize.y);
+			return new Vector2F(charSize.X * str.Length, charSize.Y);
 		}
 
 		public static void DrawString(string str, Vector2F screenCoords, float size, Vector4F color) {
 			Vector2F scale = textSquareFactor * size;
-			float charWidth = GetCharSize(size).x;
+			float charWidth = GetCharSize(size).X;
 			for (int i = 0; i < str.Length; i++) {
 				char c = str[i];
 				DrawChar(c, screenCoords + new Vector2F(charWidth * i, 0), size, color);

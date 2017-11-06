@@ -32,7 +32,7 @@ namespace PhysCubes {
 		}
 
 		public Vector3F Position {
-			get { return position; }
+			get => position;
 			set {
 				position = value;
 				matStackUpdated = false;
@@ -40,7 +40,7 @@ namespace PhysCubes {
 		}
 
 		public Vector3F Rotation {
-			get { return rotation; }
+			get => rotation;
 			set {
 				rotation = value;
 				matStackUpdated = false;
