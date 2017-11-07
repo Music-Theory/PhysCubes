@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using OpenGL;
+using System.Numerics;
 
 namespace PhysCubes.Utility {
-	using Walker.Data.Geometry.Speed.Space;
 
 	public static class GLUtility {
 
@@ -32,9 +32,9 @@ namespace PhysCubes.Utility {
 
 		static ShaderProgram lineShader;
 
-		static VBO<Vector3F> physLineVec = new VBO<Vector3F>(new[] {
-			new Vector3F(0, 0, 0),
-			new Vector3F(0, 0, 1),
+		static VBO<Vector3> physLineVec = new VBO<Vector3>(new[] {
+			new Vector3(0, 0, 0),
+			new Vector3(0, 0, 1),
 		});
 		static VBO<int> physLineInd = new VBO<int>(new[] {
 			0, 1

@@ -40,10 +40,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Giawa.OpenGL" Version="0.1.8" />
     <PackageReference Include="Microsoft.NETCore.App" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OpenGL.Net\OpenGL.Net\OpenGL.Net_netcore2.0.csproj" />
     <ProjectReference Include="..\SDL2-CS\SDL2-CS.Core.csproj" />
     <ProjectReference Include="..\Walker\Walker\Walker.csproj" />
   </ItemGroup>

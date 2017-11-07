@@ -1,12 +1,12 @@
 ﻿namespace ReturnToGL.Physics {
-	using Walker.Data.Geometry.Generic.Space;
+	using System.Numerics;
 
 	public interface ISpringAttachment {
 
 
 
-		Vector3<float> CenterOfMass { get; }
-		Vector3<float> AttachPoint { get; }
+		Vector3 CenterOfMass { get; }
+		Vector3 AttachPoint { get; }
 
 	}
 }
