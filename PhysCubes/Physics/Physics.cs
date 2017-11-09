@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenGL;
 
 namespace ReturnToGL.Physics {
+	using System.Diagnostics;
 	using System.Linq;
 	using System.Numerics;
 
@@ -116,13 +117,13 @@ namespace ReturnToGL.Physics {
 
 		static float accumulator = 0.0f;
 
-		static Clock clock = new Clock();
+		static Stopwatch clock = new Stopwatch();
 
 		public static float currAlpha = 1;
 
 		public static void UpdateLiving() {
 
-			float dTime = clock.ElapsedTime.AsSeconds();
+			float dTime = clock.ElapsedMilliseconds / 1000f;
 			currTime += dTime;
 
 			dTime = (float) Math.Max(.25, dTime);

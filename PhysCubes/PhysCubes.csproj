@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
@@ -40,11 +41,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Giawa.OpenGL" Version="0.1.8" />
     <PackageReference Include="Microsoft.NETCore.App" Version="2.0.0" />
+    <PackageReference Include="OpenGL.Net" Version="0.6.1" />
+    <PackageReference Include="OpenGL.Net.Objects" Version="0.0.1-alpha" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SDL2-CS\SDL2-CS.Core.csproj" />
-    <ProjectReference Include="..\Walker\Walker\Walker.csproj" />
   </ItemGroup>
 </Project>

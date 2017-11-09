@@ -9,9 +9,11 @@ using static PhysCubes.Utility.GLUtility;
 
 namespace PhysCubes {
 	using System.Numerics;
+	using OpenGL.Objects;
 	using SDL2;
 
 	static class Program {
+
 		#region Variables
 
 		public static Vector<int> res = new Vector<int>(new [] {1600, 900});
@@ -25,7 +27,7 @@ namespace PhysCubes {
 
 		internal static Camera cam = new Camera(CAM_POS);
 
-		static InputHandler input;
+		static InputHandler input = new InputHandler();
 		public static bool run = true;
 
 		public static IntPtr window;
@@ -40,7 +42,7 @@ namespace PhysCubes {
 			window = SDL.SDL_CreateWindow("PhysCubes", 50, 50, res[0], res[0], SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
 			glContext = SDL.SDL_GL_CreateContext(window);
 			SDL.SDL_GL_MakeCurrent(window, glContext);
-			Console.WriteLine("GL Version: " + Gl.Version());
+			Console.WriteLine("GL Version: " + Gl);
 			WriteGLError("Make Window");
 
 			#endregion
@@ -122,7 +124,7 @@ namespace PhysCubes {
 
 			while (run) {
 
-				UpdateKeys();
+				input.Update();
 
 				Physics.UpdateLiving();
 
@@ -266,10 +268,6 @@ namespace PhysCubes {
 
 		static int mouseFrames = 0;
 		static IntPtr glContext;
-
-		static void UpdateKeys() {
-
-		}
 
 	}
 

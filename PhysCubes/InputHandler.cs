@@ -39,7 +39,8 @@
 						break;
 				}
 			}
-
+			UpdateKeys();
+			UpdateMouse();
 		}
 
 		ushort mouseFrames = 0;
