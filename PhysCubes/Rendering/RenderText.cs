@@ -8,7 +8,7 @@
 	public class RenderText {
 
 
-		public static Vector2 textSquareFactor = new Vector2(Program.res.y / Program.res.x, 1);
+		public static Vector2 textSquareFactor = new Vector2((float) Program.res[0] / Program.res[1], 1);
 
 		public static Vector2 GetCharSize(float scale) {
 			return textSquareFactor * ((float) Program.res / 2f) * scale;
@@ -30,7 +30,11 @@
 
 		public static void DrawChar(char c, Vector2 screenCoords, float size, Vector4 color) {
 			VAO vao = new VAO(textShader, textQuad, charUVs[GetCharCode(c)], charVecIndices);
-			Vector2 translation = ( screenCoords - Program.res / 2 ) * 2 / Program.res; // changing the coordinates to be from -1 to 1 with the origin in the center of the screen
+			Vector2 translation = new Vector2(0, 0) {
+				                                        X = (screenCoords.X - Program.res[0] * (1 / 2)) * 2 / Program.res[0],
+				                                        Y = (screenCoords.Y - Program.res[1] * (1 / 2)) * 2 / Program.res[1]
+			                                        };
+			// changing the coordinates to be from -1 to 1 with the origin in the center of the screen
 			Vector2 scale = textSquareFactor * size;
 			vao.Program.Use();
 			Gl.BindTexture(font);

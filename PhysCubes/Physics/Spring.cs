@@ -1,5 +1,5 @@
 ﻿namespace ReturnToGL.Physics {
-	using Walker.Data.Geometry.Speed.Space;
+	using System.Numerics;
 
 	public class Spring {
 
@@ -7,7 +7,7 @@
 
 		float kVal;
 
-		public static Vector3F ForceWithDamping(float k, Vector3F pos, float b, Vector3F relVel) {
+		public static Vector3 ForceWithDamping(float k, Vector3 pos, float b, Vector3 relVel) {
 			return -k * pos - b * relVel;
 		}
 

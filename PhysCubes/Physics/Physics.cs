@@ -4,27 +4,26 @@ using OpenGL;
 
 namespace ReturnToGL.Physics {
 	using System.Linq;
-	using Walker.Data.Geometry.Speed.Rotation;
-	using Walker.Data.Geometry.Speed.Space;
+	using System.Numerics;
 
 	public struct PhysDeriv {
 
-		public Vector3F velocity;
-		public Vector3F force;
-		public Vector4F spin;
-		public Vector3F torque;
+		public Vector3 velocity;
+		public Vector3 force;
+		public Quaternion spin;
+		public Vector3 torque;
 
 	}
 
 	public static class Physics {
 
 		public const float MAX_VEL = 999999999999f;
-		public static readonly Vector3F GRAVITY = new Vector3F(0, -.1635f, 0);
+		public static readonly Vector3 GRAVITY = new Vector3(0, -.1635f, 0);
 		public const float ELASTICITY = .5f;
 
 		public static readonly float MIN_LIVING_VEL = .0000000000001f;
 
-		public static void MakeBox(Vector3F pos, Vector3F sca, Vector3F vel) {
+		public static void MakeBox(Vector3 pos, Vector3 sca, Vector3 vel) {
 			boxes.Add(new PhysBox(pos, sca, vel));
 		}
 
@@ -63,13 +62,13 @@ namespace ReturnToGL.Physics {
 			//float x = Math.Max(-MAX_VEL, Math.Min(MAX_VEL, state.linearVel.x)),
 			//	y = Math.Max(-MAX_VEL, Math.Min(MAX_VEL, GRAVITY.y + state.linearVel.y)),
 			//	z = Math.Max(-MAX_VEL, Math.Min(MAX_VEL, state.linearVel.z));
-			der.force = state.position.Normalize() * GRAVITY.y;
+			der.force = state.position.Normalize() * GRAVITY.Y;
 			//der.torque.x = (float) ( 1.0f * Math.Sin(t * 0.9f + 0.5f) );
 			//der.torque.y = (float) ( 1.1f * Math.Sin(t * 0.5f + 0.4f) );
 			//der.torque.z = (float) ( 1.2f * Math.Sin(t * 0.7f + 0.9f) );
 			//der.torque -= 0.2f * state.AngularVel;
 			//der.torque = state.position.Normalize() * GRAVITY.y * .01f;
-			//der.torque = Vector3F.Forward;
+			//der.torque = Vector3.Forward;
 			//der.torque -= .2f * state.AngularVel;
 		}
 
@@ -89,7 +88,7 @@ namespace ReturnToGL.Physics {
 			// dLinMomentum
 			phys.LinMomentum += 1f / 6f * dt * ( a.force + 2 * ( b.force + c.force ) + d.force );
 			// dRot
-			phys.Rotation += 1f / 6f * dt * (a.spin + 2 * (b.spin + c.spin) + d.spin);
+			phys.Rotation += (a.spin + (b.spin + c.spin) * 2f + d.spin) * (1f / 6f * dt);
 			// dAngMomentum
 			phys.AngMomentum += 1f / 6f * dt * (a.torque + 2 * (b.torque + c.torque) + d.torque);
 

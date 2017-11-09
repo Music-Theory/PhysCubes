@@ -37,7 +37,7 @@ namespace ReturnToGL.Physics {
 
 			linearVel = Vector3.Zero;
 			angularVel = Vector3.Zero;
-			spin = Vector4.Zero;
+			spin = Quaternion.Identity;
 
 			this.mass = 1;
 			inertiaTensor = mass * scale.X * scale.X * 1 / 6;
@@ -95,7 +95,7 @@ namespace ReturnToGL.Physics {
 			}
 		}
 
-		public Vector4 Spin {
+		public Quaternion Spin {
 			get {
 				Update();
 				return spin;
@@ -168,7 +168,7 @@ namespace ReturnToGL.Physics {
 
 			bBox = new AxisAlignedBoundingBox(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
 
-			bBox.Transform(InterStackRes);
+			bBox.Transform(InterStackRes.ToGL());
 
 			UpdateBoundingBox();
 		}
@@ -185,7 +185,7 @@ namespace ReturnToGL.Physics {
 			currState = init;
 
 			bBox = new AxisAlignedBoundingBox(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
-			bBox.Transform(InterStackRes);
+			bBox.Transform(InterStackRes.ToGL());
 			UpdateBoundingBox();
 		}
 
@@ -214,7 +214,7 @@ namespace ReturnToGL.Physics {
 
 		public void Draw(Camera cam, Texture tex = null) {
 			physCube.Program.Use();
-			physCube.Program["transform_mat"].SetValue(InterStackRes * cam.StackResult);
+			physCube.Program["transform_mat"].SetValue((InterStackRes * cam.StackResult).ToGL());
 			Gl.BindTexture(tex ?? texture);
 			physCube.Draw();
 		}
@@ -229,31 +229,32 @@ namespace ReturnToGL.Physics {
 			lineStack.Push(Matrix4x4.CreateScale(new Vector3(4, 4, 4) * s.scale));
 			lineStack.Push(Matrix4x4.CreateFromQuaternion(s.Rotation));
 			lineStack.Push(trans);
-			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
+			GLUtility.lineVAO.Program["transform_mat"].SetValue((lineStack.Result * cam.StackResult).ToGL());
 			GLUtility.lineVAO.Draw();
 
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(.5f, 1, .5f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4F.CreateScaling(new Vector3(4, 4, 4) * s.scale));
-			lineStack.Push((new Vector4((float) Math.PI / 2f, Vector3.Right) * s.Rotation).QMatrix);
+			lineStack.Push(Matrix4x4.CreateScale(new Vector3(4, 4, 4) * s.scale));
+			lineStack.Push(Matrix4x4.CreateFromQuaternion(new Quaternion(GLUtility.Right, (float) Math.PI / 2f) * s.Rotation));
 			lineStack.Push(trans);
-			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
+			GLUtility.lineVAO.Program["transform_mat"].SetValue((lineStack.Result * cam.StackResult).ToGL());
 			GLUtility.lineVAO.Draw();
 
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(1, .5f, .5f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4F.CreateScaling(new Vector3(4, 4, 4) * s.scale));
-			lineStack.Push((new Vector4((float)Math.PI / 2f, Vector3.Down) * s.Rotation).QMatrix);
+			lineStack.Push(Matrix4x4.CreateScale(new Vector3(4, 4, 4) * s.scale));
+			lineStack.Push(Matrix4x4.CreateFromQuaternion(new Quaternion(-GLUtility.Up, (float)Math.PI / 2f) * s.Rotation));
 			lineStack.Push(trans);
-			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
+			GLUtility.lineVAO.Program["transform_mat"].SetValue((lineStack.Result * cam.StackResult).ToGL());
 			GLUtility.lineVAO.Draw();
 
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(1, .5f, .75f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4F.CreateScaling(new Vector3(4, 4, 4) * s.scale * s.AngMomentum.Length));
-			lineStack.Push(new Vector4((float) (Math.PI / 2f), s.AngMomentum.Normalize()).QMatrix);
-			lineStack.Push(Matrix4F.CreateTranslation(s.position + new Vector3(0, 2, -2) * s.scale));
-			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
+			lineStack.Push(Matrix4x4.CreateScale(new Vector3(4, 4, 4) * s.scale * s.AngMomentum.Length()));
+			Vector3 norm = s.AngMomentum.Normalize();
+			lineStack.Push(Matrix4x4.CreateFromQuaternion(new Quaternion(s.AngMomentum.Normalize(), (float) (Math.PI / 2f))));
+			lineStack.Push(Matrix4x4.CreateTranslation(s.position + new Vector3(0, 2, -2) * s.scale));
+			GLUtility.lineVAO.Program["transform_mat"].SetValue((lineStack.Result * cam.StackResult).ToGL());
 			GLUtility.lineVAO.Draw();
 		}
 
