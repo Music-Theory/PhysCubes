@@ -6,13 +6,15 @@ namespace ReturnToGL.Physics {
 	using System.Diagnostics;
 	using System.Linq;
 	using System.Numerics;
+	using Walker.Data.Geometry.Speed.Rotation;
+	using Walker.Data.Geometry.Speed.Space;
 
 	public struct PhysDeriv {
 
-		public Vector3 velocity;
-		public Vector3 force;
-		public Quaternion spin;
-		public Vector3 torque;
+		public Vector3F velocity;
+		public Vector3F force;
+		public Vector4F spin;
+		public Vector3F torque;
 
 	}
 
@@ -24,7 +26,7 @@ namespace ReturnToGL.Physics {
 
 		public static readonly float MIN_LIVING_VEL = .0000000000001f;
 
-		public static void MakeBox(Vector3 pos, Vector3 sca, Vector3 vel) {
+		public static void MakeBox(Vector3F pos, Vector3F sca, Vector3F vel) {
 			boxes.Add(new PhysBox(pos, sca, vel));
 		}
 
@@ -63,7 +65,7 @@ namespace ReturnToGL.Physics {
 			//float x = Math.Max(-MAX_VEL, Math.Min(MAX_VEL, state.linearVel.x)),
 			//	y = Math.Max(-MAX_VEL, Math.Min(MAX_VEL, GRAVITY.y + state.linearVel.y)),
 			//	z = Math.Max(-MAX_VEL, Math.Min(MAX_VEL, state.linearVel.z));
-			der.force = state.position.Normalize() * GRAVITY.Y;
+			der.force = state.position.Normal * GRAVITY.Y;
 			//der.torque.x = (float) ( 1.0f * Math.Sin(t * 0.9f + 0.5f) );
 			//der.torque.y = (float) ( 1.1f * Math.Sin(t * 0.5f + 0.4f) );
 			//der.torque.z = (float) ( 1.2f * Math.Sin(t * 0.7f + 0.9f) );

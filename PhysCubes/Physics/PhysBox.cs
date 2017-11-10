@@ -5,21 +5,23 @@ using PhysCubes.Utility;
 using System.Numerics;
 
 namespace ReturnToGL.Physics {
+	using Walker.Data.Geometry.Speed.Rotation;
+	using Walker.Data.Geometry.Speed.Space;
 
 	public struct PhysState {
 
 		public const float MIN_MASS = 0.0001f;
 
-		Quaternion rotation;
-		public Vector3 position;
-		public Vector3 scale;
+		Vector4F rotation;
+		public Vector3F position;
+		public Vector3F scale;
 
-		Vector3 linMomentum;
-		Vector3 angMomentum;
+		Vector3F linMomentum;
+		Vector3F angMomentum;
 
-		Vector3 linearVel;
-		Vector3 angularVel;
-		Quaternion spin;
+		Vector3F linearVel;
+		Vector3F angularVel;
+		Vector4F spin;
 
 		float mass;
 		float inertiaTensor;
@@ -28,25 +30,25 @@ namespace ReturnToGL.Physics {
 		bool updated;
 
 		public PhysState(float mass = 1) {
-			rotation = Quaternion.Identity;
-			position = Vector3.Zero;
-			scale = Vector3.One;
+			rotation = Vector4F.QIdentity;
+			position = Vector3F.Zero;
+			scale = Vector3F.UnitScale;
 
-			linMomentum = Vector3.Zero;
-			angMomentum = Vector3.Zero;
+			linMomentum = Vector3F.Zero;
+			angMomentum = Vector3F.Zero;
 
-			linearVel = Vector3.Zero;
-			angularVel = Vector3.Zero;
-			spin = Quaternion.Identity;
+			linearVel = Vector3F.Zero;
+			angularVel = Vector3F.Zero;
+			spin = Vector4F.QIdentity;
 
 			this.mass = 1;
-			inertiaTensor = mass * scale.X * scale.X * 1 / 6;
+			inertiaTensor = mass * scale.x * scale.x * 1 / 6;
 			live = true;
 
 			updated = false;
 		}
 
-		public Quaternion Rotation {
+		public Vector4F Rotation {
 			get {
 				Update();
 				return rotation;
@@ -57,7 +59,7 @@ namespace ReturnToGL.Physics {
 			}
 		}
 
-		public Vector3 LinMomentum {
+		public Vector3F LinMomentum {
 			get => linMomentum;
 			set {
 				linMomentum = value;
@@ -65,7 +67,7 @@ namespace ReturnToGL.Physics {
 			}
 		}
 
-		public Vector3 AngMomentum {
+		public Vector3F AngMomentum {
 			get => angMomentum;
 			set {
 				angMomentum = value;
@@ -81,21 +83,21 @@ namespace ReturnToGL.Physics {
 			}
 		}
 
-		public Vector3 LinearVel {
+		public Vector3F LinearVel {
 			get {
 				Update();
 				return linearVel;
 			}
 		}
 
-		public Vector3 AngularVel {
+		public Vector3F AngularVel {
 			get {
 				Update();
 				return angularVel;
 			}
 		}
 
-		public Quaternion Spin {
+		public Vector4F Spin {
 			get {
 				Update();
 				return spin;
@@ -115,10 +117,10 @@ namespace ReturnToGL.Physics {
 
 		void Recalculate() {
 			linearVel = linMomentum / mass;
-			inertiaTensor = mass * scale.X * scale.X * 1 / 6;
+			inertiaTensor = mass * scale.x * scale.y * 1 / 6;
 			angularVel = angMomentum / inertiaTensor;
-			rotation = Quaternion.Normalize(rotation);
-			spin = new Quaternion(angularVel, 0) * .5f * rotation;
+			rotation.Length = 1;
+			spin = new Vector4F(angularVel, 0) * .5f * rotation;
 			updated = true;
 		}
 
@@ -139,14 +141,14 @@ namespace ReturnToGL.Physics {
 
 		public Texture texture = physTex;
 
-		public Matrix4x4 InterStackRes {
+		public Matrix4 InterStackRes {
 			get {
 				if (!interStackUpdated) {
 					PhysState s = InterState;
 					interStack.Clear();
-					interStack.Push(Matrix4x4.CreateScale(s.scale));
-					interStack.Push(Matrix4x4.CreateFromQuaternion(s.Rotation));
-					interStack.Push(Matrix4x4.CreateTranslation(s.position));
+					interStack.Push(Matrix4.CreateScaling(s.scale.ToNet()));
+					interStack.Push(s.Rotation.ToGLMat());
+					interStack.Push(Matrix4.CreateTranslation(s.position.ToNet()));
 					interStackUpdated = true;
 				}
 				return interStack.Result;
@@ -155,7 +157,7 @@ namespace ReturnToGL.Physics {
 
 		#region Constructor
 
-		public PhysBox(Vector3 pos, Quaternion rot, Vector3 sca, Vector3 linMom, Vector3 angMom, bool live) {
+		public PhysBox(Vector3F pos, Vector4F rot, Vector3F sca, Vector3F linMom, Vector3F angMom, bool live) {
 			initState = new PhysState() {
 				position = pos,
 				Rotation = rot,
@@ -168,16 +170,16 @@ namespace ReturnToGL.Physics {
 
 			bBox = new AxisAlignedBoundingBox(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
 
-			bBox.Transform(InterStackRes.ToGL());
+			bBox.Transform(InterStackRes);
 
 			UpdateBoundingBox();
 		}
 
-		public PhysBox(Vector3 pos) : this(pos, Quaternion.Identity, Vector3.One, Vector3.Zero, Vector3.Zero, true) { }
-		public PhysBox(Vector3 pos, Vector3 sca) : this(pos, Quaternion.Identity, sca, Vector3.Zero, Vector3.Zero, true) { }
-		public PhysBox(Vector3 pos, Vector3 sca, Vector3 vel) : this(pos, Quaternion.Identity, sca, vel, Vector3.Zero, true) { }
-		public PhysBox(Vector3 pos, bool live) : this(pos, Quaternion.Identity, Vector3.One, Vector3.Zero, Vector3.Zero, live) { }
-		public PhysBox(Vector3 pos, Vector3 sca, bool live) : this(pos, Quaternion.Identity, sca, Vector3.Zero, Vector3.Zero, live) { }
+		public PhysBox(Vector3F pos) : this(pos, Vector4F.QIdentity, Vector3F.UnitScale, Vector3F.Zero, Vector3F.Zero, true) { }
+		public PhysBox(Vector3F pos, Vector3F sca) : this(pos, Vector4F.QIdentity, sca, Vector3F.Zero, Vector3F.Zero, true) { }
+		public PhysBox(Vector3F pos, Vector3F sca, Vector3F vel) : this(pos, Vector4F.QIdentity, sca, vel, Vector3F.Zero, true) { }
+		public PhysBox(Vector3F pos, bool live) : this(pos, Vector4F.QIdentity, Vector3F.UnitScale, Vector3F.Zero, Vector3F.Zero, live) { }
+		public PhysBox(Vector3F pos, Vector3F sca, bool live) : this(pos, Vector4F.QIdentity, sca, Vector3F.Zero, Vector3F.Zero, live) { }
 
 		public PhysBox(PhysState init) {
 			initState = init;
@@ -185,7 +187,7 @@ namespace ReturnToGL.Physics {
 			currState = init;
 
 			bBox = new AxisAlignedBoundingBox(new Vector3(-1, -1, -1), new Vector3(1, 1, 1));
-			bBox.Transform(InterStackRes.ToGL());
+			bBox.Transform(InterStackRes);
 			UpdateBoundingBox();
 		}
 
@@ -193,13 +195,13 @@ namespace ReturnToGL.Physics {
 
 		public void RefreshInit() { initState = currState; }
 
-		public void ApplyForce(Vector3 force, Vector3 pos) {
+		public void ApplyForce(Vector3F force, Vector3F pos) {
 			currState.LinMomentum += force;
-			currState.AngMomentum += Vector3.Cross(force, pos - currState.position);
+			currState.AngMomentum += force.Cross(pos - currState.position);
 		}
 
-		public Vector3 GetVelOfPoint(Vector3 point) {
-			return currState.LinearVel + Vector3.Cross(currState.AngularVel, point - currState.position);
+		public Vector3F GetVelOfPoint(Vector3F point) {
+			return currState.LinearVel + currState.AngularVel.Cross(point - currState.position);
 		}
 
 		public void Refresh() {
@@ -209,12 +211,12 @@ namespace ReturnToGL.Physics {
 
 		void UpdateBoundingBox() {
 			//bBox.Transform(StackRes);
-			bBox.Translate(currState.position - bBox.Center);
+			bBox.Translate(currState.position.ToNet() - bBox.Center);
 		}
 
 		public void Draw(Camera cam, Texture tex = null) {
 			physCube.Program.Use();
-			physCube.Program["transform_mat"].SetValue((InterStackRes * cam.StackResult).ToGL());
+			physCube.Program["transform_mat"].SetValue(InterStackRes * cam.StackResult);
 			Gl.BindTexture(tex ?? texture);
 			physCube.Draw();
 		}
@@ -223,38 +225,37 @@ namespace ReturnToGL.Physics {
 			GLUtility.lineVAO.Program.Use();
 			MatrixStack lineStack = new MatrixStack();
 			PhysState s = currState;
-			Matrix4x4 trans = Matrix4x4.CreateTranslation(s.position);
+			Matrix4 trans = Matrix4.CreateTranslation(s.position.ToNet());
 
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(.5f, .5f, 1));
-			lineStack.Push(Matrix4x4.CreateScale(new Vector3(4, 4, 4) * s.scale));
-			lineStack.Push(Matrix4x4.CreateFromQuaternion(s.Rotation));
+			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale).ToNet()));
+			lineStack.Push(s.Rotation.ToGLMat());
 			lineStack.Push(trans);
-			GLUtility.lineVAO.Program["transform_mat"].SetValue((lineStack.Result * cam.StackResult).ToGL());
+			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
 			GLUtility.lineVAO.Draw();
 
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(.5f, 1, .5f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4x4.CreateScale(new Vector3(4, 4, 4) * s.scale));
-			lineStack.Push(Matrix4x4.CreateFromQuaternion(new Quaternion(GLUtility.Right, (float) Math.PI / 2f) * s.Rotation));
+			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale).ToNet()));
+			lineStack.Push((new Vector4F(Vector3F.Right, (float) Math.PI / 2f) * s.Rotation).ToGLMat());
 			lineStack.Push(trans);
-			GLUtility.lineVAO.Program["transform_mat"].SetValue((lineStack.Result * cam.StackResult).ToGL());
+			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
 			GLUtility.lineVAO.Draw();
 
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(1, .5f, .5f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4x4.CreateScale(new Vector3(4, 4, 4) * s.scale));
-			lineStack.Push(Matrix4x4.CreateFromQuaternion(new Quaternion(-GLUtility.Up, (float)Math.PI / 2f) * s.Rotation));
+			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale).ToNet()));
+			lineStack.Push((new Vector4F(Vector3F.Down, (float) Math.PI / 2f) * s.Rotation).ToGLMat());
 			lineStack.Push(trans);
-			GLUtility.lineVAO.Program["transform_mat"].SetValue((lineStack.Result * cam.StackResult).ToGL());
+			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
 			GLUtility.lineVAO.Draw();
 
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(1, .5f, .75f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4x4.CreateScale(new Vector3(4, 4, 4) * s.scale * s.AngMomentum.Length()));
-			Vector3 norm = s.AngMomentum.Normalize();
-			lineStack.Push(Matrix4x4.CreateFromQuaternion(new Quaternion(s.AngMomentum.Normalize(), (float) (Math.PI / 2f))));
-			lineStack.Push(Matrix4x4.CreateTranslation(s.position + new Vector3(0, 2, -2) * s.scale));
-			GLUtility.lineVAO.Program["transform_mat"].SetValue((lineStack.Result * cam.StackResult).ToGL());
+			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale * s.AngMomentum.Length).ToNet()));
+			lineStack.Push(new Vector4F(s.AngMomentum.Normal, (float) Math.PI / 2f).ToGLMat());
+			lineStack.Push(Matrix4.CreateTranslation((s.position + new Vector3F(0, 2, -2) * s.scale).ToNet()));
+			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
 			GLUtility.lineVAO.Draw();
 		}
 

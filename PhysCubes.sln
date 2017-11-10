@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysCubes", "PhysCubes\Phys
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDL2-CS.Core", "SDL2-CS\SDL2-CS.Core.csproj", "{F651E6CB-9075-400D-B5B5-63C1572A4DB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Walker", "Walker\Walker\Walker.csproj", "{AD3779D2-1C1F-4790-A160-3E38AD5D1413}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{F651E6CB-9075-400D-B5B5-63C1572A4DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F651E6CB-9075-400D-B5B5-63C1572A4DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F651E6CB-9075-400D-B5B5-63C1572A4DB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD3779D2-1C1F-4790-A160-3E38AD5D1413}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD3779D2-1C1F-4790-A160-3E38AD5D1413}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD3779D2-1C1F-4790-A160-3E38AD5D1413}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD3779D2-1C1F-4790-A160-3E38AD5D1413}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,6 +6,7 @@
 	using ReturnToGL.Physics;
 	using ReturnToGL.Rendering;
 	using SDL2;
+	using Walker.Data.Geometry.Speed.Space;
 
 	public class InputHandler {
 
@@ -76,7 +77,7 @@
 						break;
 					case SDL.SDL_Keycode.SDLK_KP_0:
 						Program.Reset();
-						Program.cam.Position = Vector3.Zero;
+						Program.cam.Position = Vector3F.Zero;
 						break;
 					case SDL.SDL_Keycode.SDLK_w:
 						Program.cam.Move(0, 0, 1);
@@ -151,7 +152,7 @@
 		}
 
 		void OnResized(SDL.SDL_WindowEvent e) {
-			Program.projMat = Matrix4x4.CreatePerspectiveFieldOfView(.45f, (float) e.data1 / e.data2, .1f, 1000f);
+			Program.projMat = Matrix4.CreatePerspectiveFieldOfView(.45f, (float) e.data1 / e.data2, .1f, 1000f);
 
 			Program.res = new Vector<int>(new []{e.data1, e.data2});
 

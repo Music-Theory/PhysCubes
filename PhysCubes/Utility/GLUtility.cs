@@ -4,6 +4,8 @@ using OpenGL;
 using System.Numerics;
 
 namespace PhysCubes.Utility {
+	using Walker.Data.Geometry.Speed.Rotation;
+	using Walker.Data.Geometry.Speed.Space;
 
 	public static class GLUtility {
 
@@ -46,13 +48,20 @@ namespace PhysCubes.Utility {
 
 		public static VAO lineVAO;
 
-		public static Matrix4 ToGL(this Matrix4x4 mat) {
-			return new Matrix4(new [] {
-				                          mat.M11, mat.M12, mat.M13, mat.M14,
-				                          mat.M21, mat.M22, mat.M23, mat.M24,
-				                          mat.M31, mat.M32, mat.M33, mat.M34,
-				                          mat.M41, mat.M42, mat.M43, mat.M44
-			                          });
+		public static Vector3 ToNet(this Vector3F vec) {
+			return new Vector3(vec.x, vec.y, vec.z);
+		}
+
+		public static Matrix4 ToGLMat(this Vector4F q) {
+			return q.QMatrix.ToGL();
+		}
+
+		public static Matrix4 ToGL(this Matrix4F mat) {
+			return new Matrix4(mat.R1.ToNet(), mat.R2.ToNet(), mat.R3.ToNet(), mat.R4.ToNet());
+		}
+
+		public static Vector4 ToNet(this Vector4F vec) {
+			return new Vector4(vec.x, vec.y, vec.z, vec.w);
 		}
 
 		public static Vector4 Row(this Matrix4x4 mat, int ind) {

@@ -9,21 +9,21 @@ using static PhysCubes.Utility.GLUtility;
 
 namespace PhysCubes {
 	using System.Numerics;
-	using OpenGL.Objects;
 	using SDL2;
+	using Walker.Data.Geometry.Speed.Rotation;
+	using Walker.Data.Geometry.Speed.Space;
 
 	static class Program {
-
 		#region Variables
 
-		public static Vector<int> res = new Vector<int>(new [] {1600, 900});
+		public static Vector<int> res;
 
-		public static Matrix4x4 projMat = Matrix4x4.CreatePerspectiveFieldOfView(.45f, res[0] / res[1], .1f, 1000f);
+		public static Matrix4 projMat = Matrix4.CreatePerspectiveFieldOfView(.45f, res[0] / res[1], .1f, 1000f);
 
 		static readonly MatrixStack planeStack = new MatrixStack();
 
-		static readonly Vector3 CAM_POS = new Vector3(0, 0, 50);
-		static readonly Vector3 BOX_POS = new Vector3(0, 5, 0);
+		static readonly Vector3F CAM_POS = new Vector3F(0, 0, 50);
+		static readonly Vector3F BOX_POS = new Vector3F(0, 5, 0);
 
 		internal static Camera cam = new Camera(CAM_POS);
 
@@ -39,10 +39,12 @@ namespace PhysCubes {
 		static void Main(string[] args) {
 			#region Make Window
 
+			res = new Vector<int>();
+
 			window = SDL.SDL_CreateWindow("PhysCubes", 50, 50, res[0], res[0], SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
 			glContext = SDL.SDL_GL_CreateContext(window);
 			SDL.SDL_GL_MakeCurrent(window, glContext);
-			Console.WriteLine("GL Version: " + Gl);
+			Console.WriteLine("GL Version: " + Gl.Version());
 			WriteGLError("Make Window");
 
 			#endregion
@@ -52,13 +54,13 @@ namespace PhysCubes {
 
 			Physics.boxes.Add(new PhysBox(new PhysState {
 				live = false,
-				scale = new Vector3(10, .5f, 10),
-				Rotation = new System.Numerics.Quaternion(0, 0, 0, 1)
+				scale = new Vector3F(10, .5f, 10),
+				Rotation = new Vector4F(0, 0, 0, 1)
 			}));
 			Physics.boxes.Add(new PhysBox(new PhysState {
 				position = BOX_POS,
-				Rotation = Quaternion.Identity,
-				scale = new Vector3(1, 1, 1),
+				Rotation = Vector4F.QIdentity,
+				scale = new Vector3F(1, 1, 1),
 				Mass = 1,
 				live = true
 			}));
@@ -139,7 +141,7 @@ namespace PhysCubes {
 				}
 
 				texPlane.Program.Use();
-				texPlane.Program["transform_mat"].SetValue((planeStack.Result * cam.StackResult).ToGL());
+				texPlane.Program["transform_mat"].SetValue(planeStack.Result * cam.StackResult);
 				Gl.BindTexture(indexTex);
 				texPlane.Draw();
 
@@ -172,12 +174,12 @@ namespace PhysCubes {
 			#endregion
 		}
 
-		static void WriteMat(Matrix4x4 mat) {
+		static void WriteMat(Matrix4 mat) {
 			int[] lengths = new int[4];
 			for (int y = 0; y < 4; y++) {
 				Console.Write("[");
 				for (int x = 0; x < 4; x++) {
-					Vector4 row = mat.Row(y);
+					Vector4 row = mat[y];
 					string space = "";
 					string number = row.Get(x) + ( x < 3 ? ", " : "" );
 					for (int i = 0; i < lengths[x] - number.Length; i++) { space += " "; }
@@ -192,7 +194,7 @@ namespace PhysCubes {
 
 		internal static void UpdateModelView() {
 			planeStack.Clear();
-			planeStack.Push(Matrix4x4.CreateTranslation(new Vector3(0, 0, 0)));
+			planeStack.Push(Matrix4.CreateTranslation(new Vector3(0, 0, 0)));
 		}
 
 		public static void Reset() {
@@ -208,9 +210,9 @@ namespace PhysCubes {
 		static void PushBox() {
 			PhysBox box = Physics.boxes[1];
 
-			Vector3 dir = ( box.currState.position - cam.Position ).Normalize();
-			Vector3 point = //box.currState.position + -dir * box.currState.scale;
-				new Vector3(0,1,1);
+			Vector3F dir = ( box.currState.position - cam.Position ).Normal;
+			Vector3F point = //box.currState.position + -dir * box.currState.scale;
+				new Vector3F(0,1,1);
 
 			box.ApplyForce(dir, point);
 		}
@@ -233,23 +235,23 @@ namespace PhysCubes {
 
 			//dir = dir.Normalize() * 2;
 
-			Vector3 pos = cam.Position + cam.forward * 5 + (-cam.right * centerDist.X + cam.right / 2f) + (cam.up * centerDist.Y - cam.up / 2f);
-			Vector3 dir = pos - cam.Position;
+			Vector3F pos = cam.Position + cam.forward * 5 + (-cam.right * centerDist.X + cam.right / 2f) + (cam.up * centerDist.Y - cam.up / 2f);
+			Vector3F dir = pos - cam.Position;
 
-			System.Numerics.Quaternion rotation = Quaternion.Identity;
+			Vector4F rotation = Vector4F.QIdentity;
 
 			PhysBox box = Physics.MakeBox(new PhysState(1) {
 				Rotation = rotation,
 				live = true,
 				position = pos,
-				scale = new Vector3(.5f, .5f, .5f)
+				scale = new Vector3F(.5f, .5f, .5f)
 			});
 
-			Vector3 forcePoint = box.currState.position;
+			Vector3F forcePoint = box.currState.position;
 
 			box.ApplyForce(dir, forcePoint);
-			box.ApplyForce(cam.forward * .125f, pos - new Vector3(.125f, 0, 1) * box.currState.scale);
-			box.ApplyForce(cam.forward * -.125f, pos + new Vector3(.125f, 0, 1) * box.currState.scale);
+			box.ApplyForce(cam.forward * .125f, pos - new Vector3F(.125f, 0, 1) * box.currState.scale);
+			box.ApplyForce(cam.forward * -.125f, pos + new Vector3F(.125f, 0, 1) * box.currState.scale);
 			box.currState.live = !paused;
 			box.RefreshInit();
 		}
