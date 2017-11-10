@@ -4,42 +4,41 @@
 	using OpenGL;
 	using PhysCubes;
 	using PhysCubes.Utility;
+	using Walker.Data.Geometry.Generic.Plane;
 
 	public class RenderText {
 
 
-		public static Vector2 textSquareFactor = new Vector2((float) Program.res[0] / Program.res[1], 1);
+		public static Vector2<float> textSquareFactor = new Vector2<float>((float) Program.res.X / Program.res.Y, 1);
 
-		public static Vector2 GetCharSize(float scale) {
-			return new Vector2(textSquareFactor.X * (Program.res[0] * (1 / 2)) * scale,
-			                   textSquareFactor.Y * (Program.res[1] * (1 / 2)) * scale);
+		public static Vector2<float> GetCharSize(float scale) {
+			return textSquareFactor * (Program.res.Cast<float>() / 2) * scale;
 		}
 
-		public static Vector2 GetStringSize(string str, float scale) {
-			Vector2 charSize = GetCharSize(scale);
-			return new Vector2(charSize.X * str.Length, charSize.Y);
+		public static Vector2<float> GetStringSize(string str, float scale) {
+			Vector2<float> charSize = GetCharSize(scale);
+			return new Vector2<float>(charSize.X * str.Length, charSize.Y);
 		}
 
-		public static void DrawString(string str, Vector2 screenCoords, float size, Vector4 color) {
-			Vector2 scale = textSquareFactor * size;
+		public static void DrawString(string str, Vector2<float> screenCoords, float size, Vector4 color) {
+			Vector2<float> scale = textSquareFactor * size;
 			float charWidth = GetCharSize(size).X;
 			for (int i = 0; i < str.Length; i++) {
 				char c = str[i];
-				DrawChar(c, screenCoords + new Vector2(charWidth * i, 0), size, color);
+				DrawChar(c, screenCoords + new Vector2<float>(charWidth * i, 0), size, color);
 			}
 		}
 
-		public static void DrawChar(char c, Vector2 screenCoords, float size, Vector4 color) {
+		public static void DrawChar(char c, Vector2<float> screenCoords, float size, Vector4 color) {
 			VAO vao = new VAO(textShader, textQuad, charUVs[GetCharCode(c)], charVecIndices);
-			Vector2 translation = new Vector2((screenCoords.X - Program.res[0] * (1 / 2)) * 2 / Program.res[0],
-			                                  (screenCoords.Y - Program.res[1] * (1 / 2)) * 2 / Program.res[1]);
+			Vector2<float> translation = (screenCoords - (Program.res.Cast<float>() / 2)) * 2 / Program.res.Cast<float>();
 			// changing the coordinates to be from -1 to 1 with the origin in the center of the screen
-			Vector2 scale = textSquareFactor * size;
+			Vector2<float> scale = textSquareFactor * size;
 			vao.Program.Use();
 			Gl.BindTexture(font);
-			vao.Program["translation"].SetValue(translation);
-			vao.Program["scale"].SetValue(scale);
-			vao.Program["color"].SetValue(color);
+			vao.Program["translation"].SetValue(translation.ToNet());
+			vao.Program["scale"].SetValue(scale.ToNet());
+			vao.Program["color"].SetValue(color.ToNet());
 			vao.DrawMode = BeginMode.Triangles;
 			vao.Draw();
 			vao.Dispose();

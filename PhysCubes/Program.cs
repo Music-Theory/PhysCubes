@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using System.Collections.Generic;
 using OpenGL;
 using PhysCubes.Utility;
@@ -10,15 +9,17 @@ using static PhysCubes.Utility.GLUtility;
 namespace PhysCubes {
 	using System.Numerics;
 	using SDL2;
+	using Walker.Data.Geometry.Generic.Plane;
+	using Walker.Data.Geometry.Speed.Plane;
 	using Walker.Data.Geometry.Speed.Rotation;
 	using Walker.Data.Geometry.Speed.Space;
 
 	static class Program {
 		#region Variables
 
-		public static Vector<int> res;
+		public static Vector2<int> res = new Vector2<int>(1600, 900);
 
-		public static Matrix4 projMat = Matrix4.CreatePerspectiveFieldOfView(.45f, res[0] / res[1], .1f, 1000f);
+		public static Matrix4 projMat = Matrix4.CreatePerspectiveFieldOfView(.45f, res.X / res.Y, .1f, 1000f);
 
 		static readonly MatrixStack planeStack = new MatrixStack();
 
@@ -39,9 +40,7 @@ namespace PhysCubes {
 		static void Main(string[] args) {
 			#region Make Window
 
-			res = new Vector<int>();
-
-			window = SDL.SDL_CreateWindow("PhysCubes", 50, 50, res[0], res[0], SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
+			window = SDL.SDL_CreateWindow("PhysCubes", 50, 50, res.X, res.Y, SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
 			glContext = SDL.SDL_GL_CreateContext(window);
 			SDL.SDL_GL_MakeCurrent(window, glContext);
 			Console.WriteLine("GL Version: " + Gl.Version());
@@ -114,7 +113,7 @@ namespace PhysCubes {
 			Gl.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 			Gl.DepthMask(true);
 
-			Gl.Viewport(0, 0, res[0], res[1]);
+			Gl.Viewport(0, 0, res.X, res.Y);
 
 			#endregion
 
@@ -225,11 +224,9 @@ namespace PhysCubes {
 		}
 
 		internal static void SpawnBox(int x, int y) {
-			Vector<int> mPos = new Vector<int>(new [] {x, y});
+			Vector2<int> mPos = new Vector2<int>(x, y);
 
-			Vector2 centerDist = new Vector2(res[0] - mPos[0], res[1] - mPos[1]);
-			centerDist.X *= 1f / res[0];
-			centerDist.Y *= 1f / res[1];
+			Vector2<float> centerDist = ((res - mPos) / res).Cast<float>();
 
 			// Res / 2
 

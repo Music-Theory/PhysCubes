@@ -6,6 +6,7 @@
 	using ReturnToGL.Physics;
 	using ReturnToGL.Rendering;
 	using SDL2;
+	using Walker.Data.Geometry.Generic.Plane;
 	using Walker.Data.Geometry.Speed.Space;
 
 	public class InputHandler {
@@ -154,7 +155,7 @@
 		void OnResized(SDL.SDL_WindowEvent e) {
 			Program.projMat = Matrix4.CreatePerspectiveFieldOfView(.45f, (float) e.data1 / e.data2, .1f, 1000f);
 
-			Program.res = new Vector<int>(new []{e.data1, e.data2});
+			Program.res = new Vector2<int>(e.data1, e.data2);
 
 			// this is assuming that y < x
 			RenderText.textSquareFactor = new Vector2(e.data2 / e.data1, 1);
