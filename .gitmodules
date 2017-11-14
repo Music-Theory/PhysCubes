@@ -4,3 +4,6 @@
 [submodule "Walker"]
 	path = Walker
 	url = https://github.com/signalwalker/Walker.git
+[submodule "opengl4csharp"]
+	path = opengl4csharp
+	url = https://github.com/giawa/opengl4csharp.git

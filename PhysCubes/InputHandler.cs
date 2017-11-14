@@ -158,7 +158,7 @@
 			Program.res = new Vector2<int>(e.data1, e.data2);
 
 			// this is assuming that y < x
-			RenderText.textSquareFactor = new Vector2(e.data2 / e.data1, 1);
+			RenderText.textSquareFactor = new Vector2<float>(e.data2 / e.data1, 1);
 
 			Program.UpdateModelView();
 			Program.cam.Refresh();

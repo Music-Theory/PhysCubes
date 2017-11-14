@@ -7,6 +7,8 @@ using System.Numerics;
 namespace ReturnToGL.Physics {
 	using Walker.Data.Geometry.Speed.Rotation;
 	using Walker.Data.Geometry.Speed.Space;
+	using Vector2 = OpenGL.Vector2;
+	using Vector3 = OpenGL.Vector3;
 
 	public struct PhysState {
 
@@ -146,9 +148,9 @@ namespace ReturnToGL.Physics {
 				if (!interStackUpdated) {
 					PhysState s = InterState;
 					interStack.Clear();
-					interStack.Push(Matrix4.CreateScaling(s.scale.ToNet()));
+					interStack.Push(Matrix4.CreateScaling(s.scale.ToGL()));
 					interStack.Push(s.Rotation.ToGLMat());
-					interStack.Push(Matrix4.CreateTranslation(s.position.ToNet()));
+					interStack.Push(Matrix4.CreateTranslation(s.position.ToGL()));
 					interStackUpdated = true;
 				}
 				return interStack.Result;
@@ -211,7 +213,7 @@ namespace ReturnToGL.Physics {
 
 		void UpdateBoundingBox() {
 			//bBox.Transform(StackRes);
-			bBox.Translate(currState.position.ToNet() - bBox.Center);
+			bBox.Translate(currState.position.ToGL() - bBox.Center);
 		}
 
 		public void Draw(Camera cam, Texture tex = null) {
@@ -225,10 +227,10 @@ namespace ReturnToGL.Physics {
 			GLUtility.lineVAO.Program.Use();
 			MatrixStack lineStack = new MatrixStack();
 			PhysState s = currState;
-			Matrix4 trans = Matrix4.CreateTranslation(s.position.ToNet());
+			Matrix4 trans = Matrix4.CreateTranslation(s.position.ToGL());
 
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(.5f, .5f, 1));
-			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale).ToNet()));
+			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale).ToGL()));
 			lineStack.Push(s.Rotation.ToGLMat());
 			lineStack.Push(trans);
 			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
@@ -236,7 +238,7 @@ namespace ReturnToGL.Physics {
 
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(.5f, 1, .5f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale).ToNet()));
+			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale).ToGL()));
 			lineStack.Push((new Vector4F(Vector3F.Right, (float) Math.PI / 2f) * s.Rotation).ToGLMat());
 			lineStack.Push(trans);
 			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
@@ -244,7 +246,7 @@ namespace ReturnToGL.Physics {
 
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(1, .5f, .5f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale).ToNet()));
+			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale).ToGL()));
 			lineStack.Push((new Vector4F(Vector3F.Down, (float) Math.PI / 2f) * s.Rotation).ToGLMat());
 			lineStack.Push(trans);
 			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
@@ -252,9 +254,9 @@ namespace ReturnToGL.Physics {
 
 			GLUtility.lineVAO.Program["color"].SetValue(new Vector3(1, .5f, .75f));
 			lineStack.Clear();
-			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale * s.AngMomentum.Length).ToNet()));
+			lineStack.Push(Matrix4.CreateScaling((new Vector3F(4, 4, 4) * s.scale * s.AngMomentum.Length).ToGL()));
 			lineStack.Push(new Vector4F(s.AngMomentum.Normal, (float) Math.PI / 2f).ToGLMat());
-			lineStack.Push(Matrix4.CreateTranslation((s.position + new Vector3F(0, 2, -2) * s.scale).ToNet()));
+			lineStack.Push(Matrix4.CreateTranslation((s.position + new Vector3F(0, 2, -2) * s.scale).ToGL()));
 			GLUtility.lineVAO.Program["transform_mat"].SetValue(lineStack.Result * cam.StackResult);
 			GLUtility.lineVAO.Draw();
 		}
@@ -275,7 +277,6 @@ namespace ReturnToGL.Physics {
 			physShader = new ShaderProgram(GLUtility.LoadShaderString("texVert"), GLUtility.LoadShaderString("texFrag"));
 
 			physCube = new VAO(physShader, physVerts, physUV, physIndices);
-
 		}
 
 		public static ShaderProgram physShader;

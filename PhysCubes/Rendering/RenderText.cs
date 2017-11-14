@@ -1,10 +1,10 @@
 ﻿namespace ReturnToGL.Rendering {
 	using System.Collections.Generic;
-	using System.Numerics;
 	using OpenGL;
 	using PhysCubes;
 	using PhysCubes.Utility;
 	using Walker.Data.Geometry.Generic.Plane;
+	using Walker.Data.Geometry.Speed.Rotation;
 
 	public class RenderText {
 
@@ -20,7 +20,7 @@
 			return new Vector2<float>(charSize.X * str.Length, charSize.Y);
 		}
 
-		public static void DrawString(string str, Vector2<float> screenCoords, float size, Vector4 color) {
+		public static void DrawString(string str, Vector2<float> screenCoords, float size, Vector4F color) {
 			Vector2<float> scale = textSquareFactor * size;
 			float charWidth = GetCharSize(size).X;
 			for (int i = 0; i < str.Length; i++) {
@@ -29,16 +29,16 @@
 			}
 		}
 
-		public static void DrawChar(char c, Vector2<float> screenCoords, float size, Vector4 color) {
+		public static void DrawChar(char c, Vector2<float> screenCoords, float size, Vector4F color) {
 			VAO vao = new VAO(textShader, textQuad, charUVs[GetCharCode(c)], charVecIndices);
 			Vector2<float> translation = (screenCoords - (Program.res.Cast<float>() / 2)) * 2 / Program.res.Cast<float>();
 			// changing the coordinates to be from -1 to 1 with the origin in the center of the screen
 			Vector2<float> scale = textSquareFactor * size;
 			vao.Program.Use();
 			Gl.BindTexture(font);
-			vao.Program["translation"].SetValue(translation.ToNet());
-			vao.Program["scale"].SetValue(scale.ToNet());
-			vao.Program["color"].SetValue(color.ToNet());
+			vao.Program["translation"].SetValue(translation.ToGL());
+			vao.Program["scale"].SetValue(scale.ToGL());
+			vao.Program["color"].SetValue(color.ToGL());
 			vao.DrawMode = BeginMode.Triangles;
 			vao.Draw();
 			vao.Dispose();

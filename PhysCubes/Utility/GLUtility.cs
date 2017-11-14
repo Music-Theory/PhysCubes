@@ -4,8 +4,13 @@ using OpenGL;
 using System.Numerics;
 
 namespace PhysCubes.Utility {
+	using Walker.Data.Geometry.Generic.Plane;
+	using Walker.Data.Geometry.Speed.Plane;
 	using Walker.Data.Geometry.Speed.Rotation;
 	using Walker.Data.Geometry.Speed.Space;
+	using Vector2 = OpenGL.Vector2;
+	using Vector3 = OpenGL.Vector3;
+	using Vector4 = OpenGL.Vector4;
 
 	public static class GLUtility {
 
@@ -48,7 +53,15 @@ namespace PhysCubes.Utility {
 
 		public static VAO lineVAO;
 
-		public static Vector3 ToNet(this Vector3F vec) {
+		public static Vector2 ToGL(this Vector2F vec) {
+			return new Vector2(vec.x, vec.y);
+		}
+
+		public static Vector2 ToGL(this Vector2<float> vec) {
+			return new Vector2(vec.X, vec.Y);
+		}
+
+		public static Vector3 ToGL(this Vector3F vec) {
 			return new Vector3(vec.x, vec.y, vec.z);
 		}
 
@@ -57,10 +70,10 @@ namespace PhysCubes.Utility {
 		}
 
 		public static Matrix4 ToGL(this Matrix4F mat) {
-			return new Matrix4(mat.R1.ToNet(), mat.R2.ToNet(), mat.R3.ToNet(), mat.R4.ToNet());
+			return new Matrix4(mat.R1.ToGL(), mat.R2.ToGL(), mat.R3.ToGL(), mat.R4.ToGL());
 		}
 
-		public static Vector4 ToNet(this Vector4F vec) {
+		public static Vector4 ToGL(this Vector4F vec) {
 			return new Vector4(vec.x, vec.y, vec.z, vec.w);
 		}
 

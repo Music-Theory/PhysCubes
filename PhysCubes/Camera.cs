@@ -52,7 +52,7 @@ namespace PhysCubes {
 			get {
 				if (!matStackUpdated) {
 					matStack.Clear();
-					matStack.Push(Matrix4.LookAt(position.ToNet(), (position + forward).ToNet(), up.ToNet()));
+					matStack.Push(Matrix4.LookAt(position.ToGL(), (position + forward).ToGL(), up.ToGL()));
 					matStack.Push(Program.projMat);
 					matStackUpdated = true;
 				}

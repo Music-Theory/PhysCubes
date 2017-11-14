@@ -7,12 +7,12 @@ using ReturnToGL.Rendering;
 using static PhysCubes.Utility.GLUtility;
 
 namespace PhysCubes {
-	using System.Numerics;
 	using SDL2;
 	using Walker.Data.Geometry.Generic.Plane;
-	using Walker.Data.Geometry.Speed.Plane;
 	using Walker.Data.Geometry.Speed.Rotation;
 	using Walker.Data.Geometry.Speed.Space;
+	using Vector3 = OpenGL.Vector3;
+	using Vector4 = OpenGL.Vector4;
 
 	static class Program {
 		#region Variables
@@ -40,6 +40,7 @@ namespace PhysCubes {
 		static void Main(string[] args) {
 			#region Make Window
 
+			SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING);
 			window = SDL.SDL_CreateWindow("PhysCubes", 50, 50, res.X, res.Y, SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
 			glContext = SDL.SDL_GL_CreateContext(window);
 			SDL.SDL_GL_MakeCurrent(window, glContext);
@@ -148,9 +149,9 @@ namespace PhysCubes {
 
 
 				if (drawRef) {
-					RenderText.DrawString("CFor" + cam.forward, new Vector2(0, RenderText.GetCharSize(textSize).Y * 2), textSize, new Vector4(1, .5f, .5f, 1));
-					RenderText.DrawString("CPos" + cam.Position, new Vector2(0, RenderText.GetCharSize(textSize).Y), textSize, new Vector4(1, .5f, .5f, 1));
-					RenderText.DrawString("CRot" + cam.rotation, new Vector2(0, 0), textSize, new Vector4(1, .5f, .5f, 1));
+					RenderText.DrawString("CFor" + cam.forward, new Vector2<float>(0, RenderText.GetCharSize(textSize).Y * 2), textSize, new Vector4F(1, .5f, .5f, 1));
+					RenderText.DrawString("CPos" + cam.Position, new Vector2<float>(0, RenderText.GetCharSize(textSize).Y), textSize, new Vector4F(1, .5f, .5f, 1));
+					RenderText.DrawString("CRot" + cam.rotation, new Vector2<float>(0, 0), textSize, new Vector4F(1, .5f, .5f, 1));
 				}
 			}
 
